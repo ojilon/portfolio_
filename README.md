@@ -1,103 +1,90 @@
 # Ojilong Yusuf — Portfolio
 
-A small, fast, static personal website for Ojilong Yusuf, a biology and chemistry teacher trainee (Kyambogo University, Soroti Learning Centre) who also builds software tools.
+A small, fast static portfolio for Ojilong Yusuf, a biology and chemistry teacher trainee at Kyambogo University who also builds practical software tools.
 
-"A teacher in the making who builds the tools education needs."
+> A teacher in the making who builds the tools education needs.
 
 ## Stack
 
-- **Astro** (static, pre-rendered HTML), TypeScript strict, plain CSS with custom properties.
-- No Tailwind, no UI kit, no CSS-in-JS, no client framework.
-- Fonts self-hosted via `@fontsource-variable/noto-sans` and `@fontsource/jetbrains-mono` (no Google CDN).
-- All content lives in `src/data/` and `src/content/` so it can be read by a small Go service later.
+- Astro 5 static site, TypeScript strict mode, and plain CSS custom properties.
+- No Tailwind, UI kit, CSS-in-JS, or client framework.
+- Self-hosted Noto Sans Variable and JetBrains Mono; no Google Fonts requests.
+- Content is maintained in `src/data/` and `src/content/` as TypeScript and Markdown.
 
-Allowed dependencies: `astro`, `@astrojs/sitemap`, `typescript`, `@fontsource-variable/noto-sans`, `@fontsource/jetbrains-mono`.
-Also used: `@astrojs/markdown-satteri` (required to load Markdown content collections).
+The only extra development dependency is `@astrojs/check`, which powers the `pnpm check` validation script. Astro’s built-in content collections handle Markdown; `@astrojs/sitemap` generates the sitemap.
 
-## Commands
+## Requirements and commands
+
+Use Node 20.3+ and pnpm.
 
 - `pnpm install` — install dependencies
-- `pnpm dev` — start dev server
-- `pnpm build` — static build into `dist/`
-- `pnpm preview` — preview the production build locally
-- `pnpm check` — type check (requires a compatible TypeScript version)
+- `pnpm dev` — start the local development server
+- `pnpm check` — validate Astro and TypeScript files
+- `pnpm build` — generate the static site in `dist/`
+- `pnpm preview` — serve the generated site locally
 
 ## Folder map
 
 ```
-AGENT_PROMPT.md        build brief (reference)
-README.md              this file
-astro.config.mjs       site URL (from SITE_URL env), sitemap + markdown integration
+AGENT_PROMPT.md       build brief and visual reference
+README.md             this guide
+design/               reference screenshots
+astro.config.mjs      site URL, sitemap and static output
 package.json
+pnpm-workspace.yaml  allowlisted esbuild/sharp scripts for fresh pnpm installs
 tsconfig.json
-.gitignore
 public/
-  favicon.svg          sprout icon
-  og-default.png       default Open Graph image
+  favicon.svg         sprout mark
+  og-default.png      default social-sharing image
   robots.txt
-  assets/profile.jpg   owner adds this; not created here (placeholder avatar shown if missing)
+  assets/profile.jpg  optional owner photo (add it yourself)
 src/
-  data/site.ts         name, social links, email, university line
-  data/projects.ts     typed array of projects
-  data/timeline.ts     about-page timeline items
-  utils/date.ts        date formatting helper
-  content.config.ts    content collections (notes, journal) via glob loader
-  content/notes/*.md   revision notes (Biology | Chemistry)
-  content/journal/*.md practice journal entries
-  styles/tokens.css    design tokens (light + dark)
-  styles/global.css    reset, base typography, layout helpers
-  scripts/theme.ts     inline before-paint theme script
-  scripts/theme-toggle.js  theme toggle persistence (localStorage)
-  scripts/notes-filter.ts  subject/topic filter for teaching notes
-  components/          shared UI components
-  layouts/BaseLayout.astro   head, SEO, header, footer, theme
-  pages/               all site pages
+  data/site.ts        name, social links, email and university line
+  data/projects.ts    typed project records and detail-page content
+  data/timeline.ts    editable About page timeline
+  content.config.ts   validated Markdown collection schemas
+  content/notes/      Biology and Chemistry revision notes
+  content/journal/    teaching-practice journal entries
+  components/         shared, static Astro components
+  layouts/BaseLayout.astro   document metadata, theme bootstrap, header and footer
+  pages/              Home, About, Teaching, Projects, Contact and 404 routes
+  scripts/            small theme toggle and notes filter
+  styles/             light/dark tokens and global CSS
 ```
 
-## How to add content
+## Add a project
 
-### Add a project
-1. Open `src/data/projects.ts`.
-2. Add an object to the `projects` array following the `Project` type (`slug`, `name`, `summary`, `tags`, `status`, `previewKind`, `repoUrl`, `reasonTitle`, `reasonBody`, `updated`, optional `screenshot`, `gallery`, `releaseUrl`, `docsUrl`, `featured`).
-3. Set `repoUrl` to `https://github.com/ojilon/<Repo>`.
-4. Run `pnpm build` — a detail page is generated at `/projects/<slug>`.
-5. To feature it on the home page, add `featured: true`.
+1. Add an object to `src/data/projects.ts` using the `Project` type.
+2. Set its `slug`, summary, tags, status, preview kind, repository URL, reason copy and ISO `updated` date. Use `featured: true` to show it on Home. Add screenshot/gallery paths or release/documentation URLs only when they exist.
+3. Run `pnpm build`; Astro generates `/projects/<slug>/` and its detail page.
 
-### Add a revision note
-1. Create `src/content/notes/<slug>.md` with frontmatter:
-   ```md
-   ---
-   title: My note title
-   subject: Biology   # or Chemistry
-   topic: Cell biology
-   summary: One-line summary.
-   updated: 2026-11-01
-   draft: true
-   ---
-   Body text.
-   ```
-2. Run `pnpm build`. The note appears on `/teaching#notes` and gets a detail page at `/teaching/notes/<slug>`.
-3. Draft notes show a "coming soon" label and are excluded from search (noindex + omitted from the sitemap). Set `draft: false` to index normally.
+## Add a revision note
 
-### Add a journal entry
-1. Create `src/content/journal/<slug>.md` with frontmatter:
-   ```md
-   ---
-   title: My entry title
-   date: 2026-10-24
-   excerpt: Short excerpt.
-   draft: true
-   ---
-   Body text.
-   ```
-2. Run `pnpm build`. It appears on `/teaching#journal` with a detail page at `/teaching/journal/<slug>`.
+Create `src/content/notes/<slug>.md`:
 
-## Deploying
+```md
+---
+title: My note title
+subject: Biology
+topic: Cell biology
+summary: A short, accurate description.
+updated: 2026-11-01
+draft: true
+---
 
-Run `pnpm build`, then publish the `dist/` folder to any static host. Set the `SITE_URL` environment variable (used for canonical URLs and the sitemap; falls back to `https://example.com`).
+Write the note here.
+```
 
-## Notes
+The note appears on `/teaching#notes` and gets a detail page. Draft notes remain visible but show a “coming soon” message on the detail page, use `noindex`, and are left out of the sitemap. Set `draft: false` when the note is ready to publish.
 
-- The owner's profile photo is NOT included: add `public/assets/profile.jpg`. Until then, a placeholder avatar with the initials "OY" is shown.
-- Placeholder facts (email, etc.) are marked `TODO: replace` in `src/data/site.ts`.
-- Nothing is invented about the owner; all biographical details come from the build brief.
+## Add a journal entry
+
+Create `src/content/journal/<slug>.md` with `title`, `date`, `excerpt`, and `draft` frontmatter, followed by the entry text. It appears on `/teaching#journal`. Draft entries carry a sample label and are not indexed.
+
+## Deploy
+
+Run `pnpm build` and publish `dist/` to any static host. Set the `SITE_URL` environment variable for canonical URLs, Open Graph links, and the sitemap; the development fallback is `https://example.com`.
+
+## Placeholders
+
+The owner’s profile photo is not included. Add `public/assets/profile.jpg`; until then the Home hero renders a simple “OY” silhouette placeholder rather than a broken image. Replace the email placeholder in `src/data/site.ts` before launch. Project status comments marked `TODO: verify` should also be checked by the owner.

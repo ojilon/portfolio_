@@ -1,37 +1,27 @@
-(function () {
-  const BTN_ID = "theme-toggle";
-  const LABEL_ID = "theme-toggle-label";
-  const STORAGE_KEY = "ojilong-theme";
-  const DARK_CLASS = "dark";
+(() => {
+  const button = document.getElementById("theme-toggle");
+  const label = document.getElementById("theme-toggle-label");
+  const root = document.documentElement;
+  const storageKey = "ojilong-theme";
+  if (!button) return;
 
-  const btn = document.getElementById(BTN_ID);
-  const label = document.getElementById(LABEL_ID);
-  if (!btn) return;
-
-  const html = document.documentElement;
-  const isDark = () => html.classList.contains(DARK_CLASS);
-
-  function updateLabel() {
-    if (!label) return;
-    label.textContent = isDark() ? "Light mode" : "Dark mode";
-    btn.setAttribute("aria-checked", String(isDark()));
+  const isDark = () => root.classList.contains("dark");
+  function updateState() {
+    const dark = isDark();
+    const nextAction = dark ? "Light mode" : "Dark mode";
+    if (label) label.textContent = nextAction;
+    button.setAttribute("aria-checked", String(dark));
+    button.setAttribute("aria-label", nextAction);
   }
-
-  function setTheme(theme) {
-    if (theme === "dark") {
-      html.classList.add(DARK_CLASS);
-    } else {
-      html.classList.remove(DARK_CLASS);
-    }
+  button.addEventListener("click", () => {
+    const next = isDark() ? "light" : "dark";
+    root.classList.toggle("dark", next === "dark");
     try {
-      window.localStorage.setItem(STORAGE_KEY, theme);
-    } catch (e) {
-      // ignore
+      window.localStorage.setItem(storageKey, next);
+    } catch {
+      // The toggle still works for this page when storage is unavailable.
     }
-    updateLabel();
-  }
-
-  btn.addEventListener("click", () => setTheme(isDark() ? "light" : "dark"));
-
-  updateLabel();
+    updateState();
+  });
+  updateState();
 })();

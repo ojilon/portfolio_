@@ -9,11 +9,12 @@ export const site = {
     github: "https://github.com/ojilon",
     x: "https://twitter.com/OJI_OJI_00",
   },
-  links: [
-    { label: "GitHub", url: "https://github.com/ojilon" },
-    { label: "X · @OJI_OJI_00", url: "https://twitter.com/OJI_OJI_00" },
-    { label: "Email", url: "mailto:TODO: replace" },
-  ],
 };
+
+export const siteLinks = [
+  { label: "GitHub", url: site.social.github },
+  { label: "X · @OJI_OJI_00", url: site.social.x },
+  { label: "Email", url: site.email.startsWith("TODO:") ? site.email : `mailto:${site.email}` },
+];
 
 export const footerYear = new Date().getFullYear();

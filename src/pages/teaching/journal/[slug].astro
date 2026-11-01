@@ -2,6 +2,7 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { getCollection, type CollectionEntry, render } from "astro:content";
 import { formatDate } from "@/utils/date";
+import { fitDescription } from "@/utils/seo";
 
 export async function getStaticPaths() {
   const journal = await getCollection("journal");
@@ -19,11 +20,12 @@ const { Content } = await render(entry);
 const data = entry.data;
 const draft = data.draft ?? true;
 const title = data.title;
-const desc = `${data.excerpt} — Teaching journal entry by Ojilong Yusuf.`;
+const pageTitle = `${title} | Ojilong Yusuf`;
+const desc = fitDescription(`${data.excerpt} Read this teaching practice journal entry by Ojilong Yusuf, a biology and chemistry teacher trainee in Uganda.`);
 const noindex = draft;
 ---
 <BaseLayout
-  title={title}
+  title={pageTitle}
   description={desc}
   pathname={Astro.url.pathname}
   noindex={noindex}
@@ -82,7 +84,7 @@ const noindex = draft;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--accent);
+    color: var(--accent-text);
   }
   .entry__draft {
     font-family: var(--font-mono);
@@ -90,7 +92,7 @@ const noindex = draft;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--accent);
+    color: var(--accent-text);
   }
   .entry__body {
     font-size: var(--text-lg);

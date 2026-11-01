@@ -4,86 +4,121 @@ import Hero from "@/components/Hero.astro";
 import ProjectCard from "@/components/ProjectCard.astro";
 import { featuredProjects } from "@/data/projects";
 import { site } from "@/data/site";
+import { getCollection } from "astro:content";
 
-const desc =
-  "Ojilong Yusuf — biology and chemistry teacher trainee at Kyambogo University, Uganda, and builder of practical software tools for education.";
+const desc = "Ojilong Yusuf is a biology and chemistry teacher trainee at Kyambogo University in Uganda, building practical software tools for learning and everyday work.";
+const notes = await getCollection("notes");
+const teaserOrder = ["cell-structure-function", "acids-bases-indicators", "transport-plants", "mole-concept"];
+const selectedNotes = teaserOrder.map((id) => notes.find((note) => note.id === id)).filter((note): note is (typeof notes)[number] => Boolean(note));
+const homeNotes = [...selectedNotes, ...notes.filter((note) => !teaserOrder.includes(note.id))].slice(0, 4);
+const siteUrl = process.env.SITE_URL ?? "https://example.com";
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: site.name,
+  url: new URL("/", siteUrl).toString(),
+  jobTitle: "Biology and Chemistry teacher trainee",
+  affiliation: { "@type": "CollegeOrUniversity", name: "Kyambogo University" },
+  address: { "@type": "PostalAddress", addressCountry: "UG" },
+  sameAs: [site.social.github, site.social.x],
+});
 ---
 <BaseLayout
   title="Ojilong Yusuf | Biology & Chemistry Teacher Trainee and Software Builder, Uganda"
   description={desc}
   pathname={Astro.url.pathname}
   ogImage="/og-default.png"
+  jsonLd={jsonLd}
 >
   <Hero />
-  <hr class="section-line" />
+  <div class="container"><hr class="section-line" /></div>
   <section class="home-featured section">
     <div class="container">
       <div class="home-featured__head">
         <div>
-          <p class="home-featured__eyebrow eyebrow">
-            <span class="accent-dot" aria-hidden="true"></span>
-            A FEW THINGS TAKING SHAPE
-          </p>
+          <p class="home-featured__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>A FEW THINGS TAKING SHAPE</p>
           <h2 class="home-featured__title">Built to be useful.</h2>
-          <p class="home-featured__sub">
-            Practical tools, shaped by the small frictions people meet every day.
-          </p>
+          <p class="home-featured__sub">Practical tools, shaped by the small frictions people meet every day.</p>
         </div>
-        <a href="/projects" class="home-featured__all">All projects<span class="link-arrow">→</span></a>
+        <a href="/projects" class="home-featured__all">All projects <span aria-hidden="true">→</span></a>
       </div>
       <div class="home-featured__grid">
-        {featuredProjects.map((p) => (
+        {featuredProjects.map((project) => (
           <ProjectCard
-            name={p.name}
-            status={p.status}
-            summary={p.summary}
-            tags={p.tags}
-            previewKind={p.previewKind}
-            screenshot={p.screenshot}
-            slug={p.slug}
+            name={project.name}
+            status={project.status}
+            summary={project.summary}
+            tags={project.tags}
+            previewKind={project.previewKind}
+            tone={project.tone}
+            screenshot={project.screenshot}
+            slug={project.slug}
           />
         ))}
       </div>
     </div>
   </section>
-  <hr class="section-line" />
+  <div class="container"><hr class="section-line" /></div>
   <section class="home-notes section">
     <div class="container home-notes__inner">
       <div class="home-notes__text">
-        <p class="home-notes__eyebrow eyebrow">
-          <span class="accent-dot" aria-hidden="true"></span>
-          MADE FOR LEARNING
-        </p>
+        <p class="home-notes__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>MADE FOR LEARNING</p>
         <h2 class="home-notes__title">Notes to make a concept click.</h2>
-        <p class="home-notes__desc">
-          Short biology and chemistry explainers, one idea at a time.
-        </p>
-        <a href="/teaching#notes" class="btn btn--outline">Browse revision notes<span class="link-arrow">→</span></a>
+        <p class="home-notes__desc">Short biology and chemistry explainers, one idea at a time.</p>
+        <a href="/teaching#notes" class="home-notes__link">Browse revision notes <span aria-hidden="true">→</span></a>
       </div>
-      <div class="home-notes__grid" id="notes-grid">
-        <div class="home-notes__empty">
-          <p>Explore the full set of revision notes on the Teaching page.</p>
-        </div>
+      <div class="home-notes__grid" aria-label="Featured revision notes">
+        {homeNotes.map((note) => (
+          <a class="home-note" href={`/teaching/notes/${note.id}`}>
+            <span class:list={["home-note__subject", note.data.subject === "Biology" ? "is-biology" : "is-chemistry"]} aria-hidden="true">{note.data.subject === "Biology" ? "B" : "C"}</span>
+            <span class="home-note__copy">
+              <strong>{note.data.title}</strong>
+              <small>{note.data.subject} · {note.data.topic}</small>
+            </span>
+          </a>
+        ))}
       </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .home-featured__head { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
-  @media (min-width: 769px) { .home-featured__head { flex-direction: row; justify-content: space-between; align-items: flex-end; width: 100%; } }
-  .home-featured__title { font-size: var(--h2-desktop); line-height: 1.05; margin: 4px 0 8px 0; }
-  @media (max-width: 768px) { .home-featured__title { font-size: var(--h2-mobile); } }
-  .home-featured__sub { color: var(--text); font-size: var(--text-lg); line-height: var(--leading-body); margin: 0; max-width: 460px; }
-  .home-featured__all { font-weight: 700; color: var(--primary); font-size: 15px; }
-  .home-featured__all:hover { text-decoration: underline; }
-  .home-featured__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 30px; }
-  @media (max-width: 900px) { .home-featured__grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 640px) { .home-featured__grid { grid-template-columns: 1fr; } }
-  .home-notes__inner { border-radius: var(--radius-panel); border: 1px solid var(--border); background: var(--sage); padding: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
-  @media (max-width: 768px) { .home-notes__inner { grid-template-columns: 1fr; gap: 24px; padding: 28px 20px; } }
-  .home-notes__desc { color: var(--text); font-size: var(--text-lg); line-height: var(--leading-body); margin: 0 0 18px 0; }
-  .home-notes__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  @media (max-width: 768px) { .home-notes__grid { gap: 12px; } }
-  .home-notes__empty { grid-column: 1 / -1; color: var(--muted); font-size: 14px; text-align: center; padding: 20px; }
+  .home-featured.section { padding-block: 36px; }
+  .home-notes.section { padding: 36px 0 72px; }
+  .home-featured__head { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+  .home-featured__title { margin: 5px 0 8px; font-size: var(--h2-desktop); }
+  .home-featured__sub { max-width: 520px; font-size: var(--text-lg); }
+  .home-featured__all, .home-notes__link { display: inline-flex; align-items: center; gap: 8px; color: var(--primary); font-size: 14px; font-weight: 700; }
+  .home-featured__all { white-space: nowrap; }
+  .home-featured__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 28px; }
+  .home-notes__inner { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 36px; align-items: center; padding: 40px; border: 1px solid var(--border); border-radius: var(--radius-panel); background: var(--sage); }
+  .home-notes__title { max-width: 360px; margin: 5px 0 10px; font-size: var(--h2-desktop); }
+  .home-notes__desc { margin-bottom: 18px; font-size: 15px; }
+  .home-notes__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .home-note { display: flex; min-height: 76px; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 16px; color: inherit; background: var(--surface); }
+  .home-note:hover { border-color: var(--primary); color: inherit; }
+  .home-note__subject { display: grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; border-radius: 11px; font-family: var(--font-mono); font-size: 12px; font-weight: 700; }
+  .home-note__subject.is-biology { color: var(--subject-biology-text); background: var(--subject-biology-bg); }
+  .home-note__subject.is-chemistry { color: var(--subject-chemistry-text); background: var(--subject-chemistry-bg); }
+  .home-note__copy { display: grid; gap: 3px; min-width: 0; }
+  .home-note__copy strong { color: var(--ink); font-size: 13px; line-height: 1.3; }
+  .home-note__copy small { color: var(--muted); font-size: 11px; line-height: 1.35; }
+
+  @media (max-width: 900px) { .home-featured__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 760px) {
+    .home-featured.section { padding-block: 32px; }
+    .home-notes.section { padding: 32px 0 64px; }
+    .home-featured__title, .home-notes__title { font-size: var(--h2-mobile); }
+    .home-featured__head { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .home-featured__grid { grid-template-columns: 1fr; gap: 14px; }
+    .home-notes__inner { grid-template-columns: 1fr; gap: 22px; padding: 28px 20px; }
+  }
+  @media (max-width: 380px) {
+    .home-featured__head { align-items: flex-start; }
+    .home-featured__all { margin-top: 4px; font-size: 12px; }
+    .home-note { gap: 8px; padding: 10px; }
+    .home-note__subject { width: 30px; height: 30px; }
+    .home-note__copy strong { font-size: 12px; }
+    .home-note__copy small { font-size: 10px; }
+  }
 </style>

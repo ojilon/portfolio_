@@ -5,58 +5,93 @@ export interface Props {
   width?: number;
   height?: number;
   alt?: string;
+  tone?: "sage" | "sand" | "lavender";
+  loading?: "eager" | "lazy";
 }
-const { previewKind, screenshot, width = 400, height = 225, alt = "Concept preview" } = Astro.props;
+const { previewKind, screenshot, width = 400, height = 225, alt = "Concept preview", tone, loading = "lazy" } = Astro.props;
+const previewTone = tone ?? (previewKind === "browser" || previewKind === "terminal" ? "sand" : "sage");
 ---
-<section class="preview" style={`--preview-w: ${width}px; --preview-h: ${height}px;`}>
+<div class:list={["preview", `preview--${previewTone}`]} style={`--preview-h: ${height}px;`} role={screenshot ? undefined : "img"} aria-label={screenshot ? undefined : `${alt}, concept placeholder`}>
   {screenshot ? (
-    <img src={screenshot} alt={alt} width={width} height={height} loading="lazy" class="preview__img" />
+    <img src={screenshot} alt={alt} width={width} height={height} loading={loading} class="preview__img" />
   ) : (
     <>
-      <div class={`preview__illustration preview__illustration--${previewKind}`}></div>
-      <p class="preview__caption">CONCEPT PREVIEW · SCREENSHOT PLACEHOLDER</p>
+      <span class="preview__arc" aria-hidden="true"></span>
+      <span class="preview__caption" aria-hidden="true">CONCEPT PREVIEW · SCREENSHOT PLACEHOLDER</span>
+      {previewKind === "phone-pc" && (
+        <div class="preview__devices" aria-hidden="true">
+          <div class="pp-phone"><span class="pp-speaker"></span><span class="pp-phone-line"></span><span class="pp-phone-line short"></span><span class="pp-phone-line"></span></div>
+          <span class="pp-transfer">↔</span>
+          <div class="pp-window"><div class="pp-titlebar"><i></i><i></i><i></i></div><div class="pp-window-content"><span></span><div><i></i><i></i><i></i></div></div></div>
+        </div>
+      )}
+      {previewKind === "browser" && (
+        <div class="browser-window" aria-hidden="true">
+          <div class="browser-titlebar"><i></i><i></i><i></i><span></span></div>
+          <div class="browser-content"><aside><i></i><i></i><i></i><i></i></aside><div class="browser-main"><i class="wide"></i><i class="mid"></i><div><i></i><i></i><i></i></div><i class="short"></i></div></div>
+        </div>
+      )}
+      {previewKind === "terminal" && (
+        <div class="terminal-panel" aria-hidden="true"><span>$ releaseforge check</span><span>✓ tests passed</span><span>✓ version tagged</span><span>› ready to publish_</span></div>
+      )}
+      {(previewKind === "code" || previewKind === "shortcut") && (
+        <div class="editor-window" aria-hidden="true">
+          <div class="editor-titlebar"><i></i><i></i><i></i></div>
+          <div class="editor-lines"><i></i><i class="line-long"></i><i class="line-short"></i><i></i><i class="line-mid"></i></div>
+          <span class:list={["editor-tile", { "is-shortcut": previewKind === "shortcut" }]}>{previewKind === "code" ? "{}" : "⌘"}</span>
+        </div>
+      )}
     </>
   )}
-</section>
+</div>
 
 <style>
-  .preview {
-    width: 100%; height: var(--preview-h); border-radius: var(--radius-card);
-    border: 1px solid var(--border); background: var(--surface); overflow: hidden;
-    display: flex; align-items: center; justify-content: center; position: relative;
-  }
-  .preview__img { width: 100%; height: 100%; object-fit: cover; }
-  .preview__caption {
-    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-    font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--muted); background: rgba(253,252,248,0.85);
-    padding: 4px 10px; border-radius: 9999px; border: 1px solid var(--border);
-  }
-  .dark .preview__caption { background: rgba(22,36,31,0.85); }
-  .preview__illustration { width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
-  .blk { background: var(--border); border-radius: 6px; }
-  .preview__illustration--phone-pc { background: var(--sage); }
-  .pp-phone, .pp-window { position: absolute; border-radius: 24px; border: 10px solid var(--ink); background: var(--surface); }
-  .pp-phone { width: 42%; height: 72%; left: 10%; top: 14%; }
-  .pp-window { width: 42%; height: 46%; right: 10%; top: 44%; }
-  .pp-arrow { position: absolute; left: 54%; top: 48%; width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 9px solid var(--accent); }
-  .pp-screen { width: 84%; height: 30%; margin: 0 auto 6px auto; } .pp-screen.small { height: 16%; width: 70%; }
-  .pp-bar { width: 90%; height: 8%; background: var(--border); border-radius: 6px; margin: 0 auto; }
-  .preview__illustration--browser { background: var(--sand); }
-  .bb-window { width: 80%; height: 72%; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); display: flex; }
-  .bb-sidebar { width: 22%; border-right: 1px solid var(--border); background: var(--sage); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-  .bb-sitem { height: 12%; background: var(--border); border-radius: 6px; }
-  .bb-main { flex: 1; padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .bb-block { height: 38%; background: var(--border); border-radius: 8px; }
-  .preview__illustration--terminal { background: var(--code-bg); color: var(--code-text); }
-  .tt-panel { width: 86%; height: 70%; border-radius: 10px; border: 1px solid rgba(207,227,216,0.15); padding: 16px 18px; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; white-space: pre; }
-  .preview__illustration--code, .preview__illustration--shortcut { background: var(--sage); }
-  .preview__illustration--shortcut { background: var(--peach); }
-  .cc-editor { width: 86%; height: 70%; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); position: relative; overflow: hidden; }
-  .cc-line { height: 22%; background: var(--border); border-radius: 6px; margin: 0 16px 8px 16px; }
-  .cc-line.short { width: 60%; height: 14%; }
-  .cc-tile { position: absolute; right: 18px; bottom: 18px; width: 44px; height: 44px; border-radius: 8px; font-family: var(--font-mono); font-weight: 700; display: grid; place-items: center; font-size: 18px; }
-  .preview__illustration--code .cc-tile { background: var(--primary); color: #fff; }
-  .preview__illustration--shortcut .cc-tile { background: var(--accent); color: #fff; }
-  @media (max-width: 640px) { .preview { height: 200px; } }
+  .preview { position: relative; display: grid; width: 100%; height: var(--preview-h); overflow: hidden; place-items: center; border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--preview-bg); }
+  .preview--sage { --preview-bg: var(--sage); }
+  .preview--sand { --preview-bg: var(--sand); }
+  .preview--lavender { --preview-bg: var(--lavender); }
+  .preview::after { position: absolute; top: -128px; right: -104px; width: 250px; height: 250px; border: 1px solid color-mix(in srgb, var(--primary) 15%, transparent); border-radius: 50%; box-shadow: 0 0 0 24px color-mix(in srgb, var(--primary) 4%, transparent); content: ""; pointer-events: none; }
+  .preview__img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; }
+  .preview__caption { position: absolute; z-index: 2; top: 12px; left: 14px; color: var(--muted); font-family: var(--font-mono); font-size: 9px; font-weight: 700; letter-spacing: 0.12em; }
+  .preview__devices, .browser-window, .editor-window, .terminal-panel { position: relative; z-index: 1; }
+  .preview__devices { display: flex; width: 58%; height: 63%; align-items: center; justify-content: space-between; }
+  .pp-phone { display: flex; width: 20%; height: 100%; flex-direction: column; align-items: center; gap: 7%; padding: 8% 5%; border: 2px solid #31594F; border-radius: 12px; background: var(--surface); box-shadow: var(--shadow-card); }
+  .pp-speaker { width: 35%; height: 3px; border-radius: 5px; background: var(--border); }
+  .pp-phone-line { width: 78%; height: 7%; border-radius: 5px; background: var(--sage-strong); }
+  .pp-phone-line.short { width: 52%; background: var(--peach); }
+  .pp-transfer { color: var(--primary); font-size: 18px; font-weight: 700; }
+  .pp-window { width: 44%; height: 90%; overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); box-shadow: var(--shadow-card); }
+  .pp-titlebar, .browser-titlebar, .editor-titlebar { display: flex; height: 15%; align-items: center; gap: 5px; padding-inline: 8px; border-bottom: 1px solid var(--border); }
+  .pp-titlebar i, .browser-titlebar i, .editor-titlebar i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+  .pp-titlebar i:nth-child(2), .browser-titlebar i:nth-child(2), .editor-titlebar i:nth-child(2) { background: #9ABBA9; }
+  .pp-titlebar i:nth-child(3), .browser-titlebar i:nth-child(3), .editor-titlebar i:nth-child(3) { background: #C4D6C9; }
+  .pp-window-content { display: flex; height: 75%; gap: 8%; padding: 8%; }
+  .pp-window-content > span { width: 22%; border-radius: 4px; background: var(--sage-strong); }
+  .pp-window-content > div { display: flex; flex: 1; flex-direction: column; gap: 8%; }
+  .pp-window-content i { width: 100%; height: 16%; border-radius: 4px; background: var(--sage); }
+  .browser-window { width: 76%; height: 66%; overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow-card); }
+  .browser-titlebar { height: 14%; }
+  .browser-titlebar span { width: 28%; height: 4px; margin-left: 6px; border-radius: 5px; background: var(--border); }
+  .browser-content { display: flex; height: 86%; }
+  .browser-content aside { display: flex; width: 22%; flex-direction: column; gap: 10%; padding: 5%; border-right: 1px solid var(--border); background: var(--sage); }
+  .browser-content aside i { height: 8%; border-radius: 4px; background: var(--sage-strong); }
+  .browser-main { display: flex; flex: 1; flex-direction: column; gap: 8%; padding: 5%; }
+  .browser-main > i { height: 7%; border-radius: 5px; background: var(--border); }
+  .browser-main > i.wide { width: 42%; }
+  .browser-main > i.mid { width: 66%; }
+  .browser-main > i.short { width: 52%; }
+  .browser-main > div { display: flex; height: 34%; gap: 5%; }
+  .browser-main > div i { flex: 1; border: 1px solid var(--border); border-radius: 6px; background: var(--sage); }
+  .terminal-panel { display: flex; width: 78%; min-height: 62%; flex-direction: column; justify-content: center; gap: 4px; padding: 16px 20px; border: 1px solid rgb(207 227 216 / 12%); border-radius: 10px; color: var(--code-text); background: var(--code-bg); box-shadow: var(--shadow-card); font-family: var(--font-mono); font-size: clamp(8px, 1vw, 12px); line-height: 1.7; white-space: nowrap; }
+  .editor-window { width: 78%; height: 66%; overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); box-shadow: var(--shadow-card); }
+  .editor-titlebar { height: 14%; }
+  .editor-lines { display: flex; width: 68%; height: 70%; flex-direction: column; justify-content: center; gap: 9%; padding-left: 6%; }
+  .editor-lines i { width: 100%; height: 7%; border-radius: 4px; background: #A9C7B8; }
+  .editor-lines i:nth-child(2) { width: 78%; background: var(--border); }
+  .editor-lines i:nth-child(3) { width: 62%; background: #E8B394; }
+  .editor-lines i:nth-child(4) { width: 84%; }
+  .editor-lines i:nth-child(5) { width: 56%; background: #E8B394; }
+  .editor-tile { position: absolute; right: 5%; bottom: 8%; display: grid; width: 16%; height: 52%; place-items: center; border-radius: 8px; color: var(--button-primary-text); background: var(--primary); font-family: var(--font-mono); font-size: clamp(14px, 2vw, 22px); font-weight: 700; }
+  .editor-tile.is-shortcut { color: var(--ink); background: var(--sage-strong); }
+  @media (max-width: 640px) { .preview { height: 200px; } .preview__caption { font-size: 8px; } }
 </style>

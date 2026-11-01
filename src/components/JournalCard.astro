@@ -1,75 +1,24 @@
 ---
-export interface Props {
-  title: string;
-  date: string;
-  excerpt: string;
-  slug: string;
-  draft?: boolean;
-}
-const { title, date, excerpt, slug, draft } = Astro.props;
+export interface Props { title: string; date: string; excerpt: string; slug: string; draft?: boolean; }
+const { title, date, excerpt, slug, draft = false } = Astro.props;
 ---
-<article class="card">
-  <a class="card__link" href={`/teaching/journal/${slug}`}>
-    <div class="card__top">
-      <span class="card__date">{date}</span>
-    </div>
-    <h3 class="card__title">{title}</h3>
-    <p class="card__excerpt">{excerpt}</p>
+<article class="journal-card">
+  <a class="journal-card__link" href={`/teaching/journal/${slug}`}>
+    <time class="journal-card__date">{date}</time>
+    <h3 class="journal-card__title">{title}</h3>
+    <p class="journal-card__excerpt">{excerpt}</p>
   </a>
-  {draft && (
-    <p class="card__draft">Sample entry · replace with your journal</p>
-  )}
+  {draft && <p class="journal-card__draft"><span aria-hidden="true"></span>Sample entry · replace with your journal</p>}
 </article>
 
 <style>
-  .card {
-    border-radius: var(--radius-card);
-    border: 1px solid var(--border);
-    background: var(--surface);
-    padding: 18px 20px;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  .card__link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-    height: 100%;
-  }
-  .card__top {
-    margin-bottom: 10px;
-  }
-  .card__date {
-    display: inline-flex;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--accent);
-  }
-  .card__title {
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1.25;
-    margin: 0 0 8px 0;
-    color: var(--ink);
-  }
-  .card__excerpt {
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--text);
-    margin: 0;
-    flex: 1;
-  }
-  .card__draft {
-    margin-top: 10px;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--accent);
-  }
+  .journal-card { display: flex; min-width: 0; min-height: 178px; flex-direction: column; padding: 18px 20px; border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface); }
+  .journal-card__link { display: flex; flex: 1; flex-direction: column; color: inherit; }
+  .journal-card__link:focus-visible { outline-offset: 3px; border-radius: 4px; }
+  .journal-card__date { margin-bottom: 10px; color: var(--accent-text); font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .journal-card__title { margin-bottom: 8px; color: var(--ink); font-size: 16px; line-height: 1.3; }
+  .journal-card__excerpt { flex: 1; color: var(--text); font-size: 13px; line-height: 1.5; }
+  .journal-card__draft { display: flex; align-items: center; gap: 6px; margin-top: 12px; color: var(--muted); font-size: 10px; }
+  .journal-card__draft span { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+  .journal-card:hover { border-color: var(--primary); box-shadow: var(--shadow-card); }
 </style>

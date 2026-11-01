@@ -1,4 +1,6 @@
 export type ProjectStatus = "released" | "in-progress" | "idea";
+export type PreviewKind = "phone-pc" | "browser" | "terminal" | "code" | "shortcut";
+export type PreviewTone = "sage" | "sand" | "lavender";
 
 export type Project = {
   slug: string;
@@ -6,12 +8,8 @@ export type Project = {
   summary: string;
   tags: string[];
   status: ProjectStatus;
-  previewKind:
-    | "phone-pc"
-    | "browser"
-    | "terminal"
-    | "code"
-    | "shortcut";
+  previewKind: PreviewKind;
+  tone: PreviewTone;
   screenshot?: string;
   gallery?: string[];
   releaseUrl?: string;
@@ -31,6 +29,7 @@ export const projects: Project[] = [
     tags: ["Android", "Local network", "File transfer"],
     status: "released", // TODO: verify
     previewKind: "phone-pc",
+    tone: "sage",
     repoUrl: "https://github.com/ojilon/Wayer",
     reasonTitle: ["A little less friction.", "A little more room to focus."],
     reasonBody: [
@@ -38,7 +37,7 @@ export const projects: Project[] = [
       "Move files between a phone and a PC without the cable dance. That is the practical question this project is here to explore.",
     ],
     featured: true,
-    updated: "2026-10-20",
+    updated: "2026-11-01",
   },
   {
     slug: "zlanpiko",
@@ -47,13 +46,15 @@ export const projects: Project[] = [
     tags: ["Offline-first", "Academic tools", "Student workflow"],
     status: "in-progress",
     previewKind: "browser",
+    tone: "sand",
     repoUrl: "https://github.com/ojilon/zlanpiko",
     reasonTitle: ["Study without the network.", "Keep your work in your hands."],
     reasonBody: [
-      "An offline academic manager for the everyday work of studying.",
-      "Built so a learner can keep track of notes, assignments and progress without depending on a connection that comes and goes.",
+      "zlanpiko is an offline academic manager for the everyday work of studying.",
+      "The project is being shaped around a simple need: study tools should remain useful when a connection is unreliable.",
     ],
-    updated: "2026-10-15",
+    featured: true,
+    updated: "2026-11-01",
   },
   {
     slug: "conductino",
@@ -62,13 +63,14 @@ export const projects: Project[] = [
     tags: ["Browser", "Study workflow", "Focus"],
     status: "in-progress",
     previewKind: "browser",
+    tone: "lavender",
     repoUrl: "https://github.com/ojilon/Conductino",
     reasonTitle: ["A browser for focus.", "Designed around study, not distraction."],
     reasonBody: [
-      "A browser concept tuned for focused, study-oriented browsing.",
-      "Reducing the frictions that pull attention away from learning.",
+      "Conductino explores what a browser could feel like when study is the main use case.",
+      "The concept is focused on making study-oriented browsing feel more intentional.",
     ],
-    updated: "2026-10-10",
+    updated: "2026-11-01",
   },
   {
     slug: "android-scaffold-studio",
@@ -77,13 +79,14 @@ export const projects: Project[] = [
     tags: ["Android", "Code generation", "Developer tools"],
     status: "in-progress",
     previewKind: "code",
+    tone: "sage",
     repoUrl: "https://github.com/ojilon/Android-Scaffold-Studio",
     reasonTitle: ["Less setup, more building.", "Start from a clean scaffold."],
     reasonBody: [
-      "Generate a clean Android project scaffold and get to the useful part sooner.",
-      "Removing the repetitive start-up work of a new Android project.",
+      "Android-Scaffold-Studio focuses on generating a clean starting point for an Android project.",
+      "The aim is to make the repetitive setup step smaller, so a developer can get to the useful part sooner.",
     ],
-    updated: "2026-10-08",
+    updated: "2026-11-01",
   },
   {
     slug: "releaseforge",
@@ -92,13 +95,15 @@ export const projects: Project[] = [
     tags: ["Terminal", "Build tooling", "Release workflow"],
     status: "released", // TODO: verify
     previewKind: "terminal",
+    tone: "sand",
     repoUrl: "https://github.com/ojilon/releaseforge",
     reasonTitle: ["Ship with confidence.", "Build, check, release."],
     reasonBody: [
-      "A terminal workspace for building and shipping releases with confidence.",
-      "A place where tests pass, versions are tagged, and releases are ready to publish.",
+      "releaseforge is a terminal workspace for building and shipping releases.",
+      "Its focus is a more deliberate release workflow, presented in a place developers already use: the terminal.",
     ],
-    updated: "2026-10-05",
+    featured: true,
+    updated: "2026-11-01",
   },
   {
     slug: "perspecta-see",
@@ -107,14 +112,15 @@ export const projects: Project[] = [
     tags: ["Browser", "Code visualization", "Learning tools"],
     status: "in-progress",
     previewKind: "shortcut",
+    tone: "sage",
     repoUrl: "https://github.com/ojilon/perspecta_see",
     reasonTitle: ["See how the code fits.", "Explore a page, understand its structure."],
     reasonBody: [
-      "Visualize how browser code fits together while you explore a page.",
-      "Helping learners read the structure behind the sites they use every day.",
+      "perspecta_see explores ways to make the structure behind a browser page easier to see.",
+      "The project connects everyday browsing with a closer look at the code that shapes a page.",
     ],
-    updated: "2026-10-03",
+    updated: "2026-11-01",
   },
 ];
 
-export const featuredProjects = projects.filter((p) => p.featured);
+export const featuredProjects = projects.filter((project) => project.featured);

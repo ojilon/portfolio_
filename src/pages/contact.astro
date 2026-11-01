@@ -2,39 +2,33 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { site } from "@/data/site";
 
-const desc =
-  "Get in touch with Ojilong Yusuf — biology and chemistry teacher trainee and software builder in Uganda — about education technology, teaching resources or software projects.";
+const desc = "Contact Ojilong Yusuf, a biology and chemistry teacher trainee and software builder in Uganda, about education technology, teaching resources or software projects.";
 const title = "Contact | Ojilong Yusuf";
+const hasEmail = !site.email.startsWith("TODO:");
 ---
 <BaseLayout title={title} description={desc} pathname={Astro.url.pathname} ogImage="/og-default.png">
   <section class="contact section">
     <div class="container">
       <div class="contact__head">
-        <p class="contact__eyebrow eyebrow">
-          <span class="accent-dot" aria-hidden="true"></span>
-          CONTACT
-        </p>
+        <p class="contact__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>CONTACT</p>
         <h1 class="contact__title">Let’s talk.</h1>
-        <p class="contact__desc">
-          I’m open to collaboration on education technology, teaching resources, and software projects. Reach me by email,
-          GitHub, or X. No form — just a real inbox.
-        </p>
+        <p class="contact__desc">I’m open to collaboration on education technology, teaching resources and software projects. Reach me by email, GitHub or X.</p>
       </div>
       <div class="contact__links">
-        <a href={site.links.find((l) => l.label === "Email")?.url ?? site.email} class="contact__row">
-          <span class="contact__row-label">Email</span>
-          <span class="contact__row-value">{site.links.find((l) => l.label === "Email")?.url ?? site.email}</span>
-          <span class="contact__row-arrow">↗</span>
+        {hasEmail ? (
+          <a href={`mailto:${site.email}`} class="contact__row">
+            <span class="contact__row-label">Email</span><span class="contact__row-value">{site.email}</span><span class="contact__row-arrow" aria-hidden="true">↗</span>
+          </a>
+        ) : (
+          <div class="contact__row contact__row--placeholder">
+            <span class="contact__row-label">Email</span><span class="contact__row-value">TODO: replace with an email address</span><span class="contact__row-arrow" aria-hidden="true">↗</span>
+          </div>
+        )}
+        <a href={site.social.github} class="contact__row" target="_blank" rel="noreferrer">
+          <span class="contact__row-label">GitHub</span><span class="contact__row-value">github.com/ojilon</span><span class="contact__row-arrow" aria-hidden="true">↗</span>
         </a>
-        <a href={site.links.find((l) => l.label === "GitHub")?.url} class="contact__row">
-          <span class="contact__row-label">GitHub</span>
-          <span class="contact__row-value">{site.links.find((l) => l.label === "GitHub")?.url}</span>
-          <span class="contact__row-arrow">↗</span>
-        </a>
-        <a href={site.links.find((l) => l.label === "X · @OJI_OJI_00")?.url} class="contact__row">
-          <span class="contact__row-label">X</span>
-          <span class="contact__row-value">@OJI_OJI_00</span>
-          <span class="contact__row-arrow">↗</span>
+        <a href={site.social.x} class="contact__row" target="_blank" rel="noreferrer">
+          <span class="contact__row-label">X</span><span class="contact__row-value">@OJI_OJI_00</span><span class="contact__row-arrow" aria-hidden="true">↗</span>
         </a>
       </div>
     </div>
@@ -43,81 +37,21 @@ const title = "Contact | Ojilong Yusuf";
 
 <style>
   .contact__head { margin-bottom: 34px; }
-  .contact__eyebrow { margin: 0 0 12px 0; }
-  .contact__title {
-    font-size: 40px;
-    line-height: 1.05;
-    margin: 0 0 14px 0;
-  }
-  @media (max-width: 768px) { .contact__title { font-size: 30px; } }
-  .contact__desc {
-    font-size: var(--text-lg);
-    line-height: var(--leading-body);
-    color: var(--text);
-    margin: 0;
-    max-width: 560px;
-  }
-  .contact__links {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .contact__row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    border-radius: var(--radius-card);
-    border: 1px solid var(--border);
-    background: var(--surface);
-    padding: 18px 22px;
-    text-decoration: none;
-    color: inherit;
-  }
-  .contact__row:hover {
-    border-color: var(--primary);
-    box-shadow: var(--shadow-card);
-  }
-  .contact__row-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
-  .contact__row-value {
-    font-size: 15px;
-    color: var(--text);
-    flex: 1;
-    min-width: 0;
-  }
-  .contact__row-value {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .contact__row-arrow {
-    color: var(--accent);
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-  @media (max-width: 640px) {
-    .contact__row {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
-      padding: 16px 20px;
-    }
-    .contact__row-value {
-      white-space: normal;
-      order: 2;
-      width: 100%;
-    }
-    .contact__row-arrow {
-      order: 1;
-      align-self: flex-start;
-    }
+  .contact__eyebrow { margin-bottom: 12px; }
+  .contact__title { margin-bottom: 14px; font-size: var(--page-title); letter-spacing: -0.035em; }
+  .contact__desc { max-width: 640px; font-size: var(--text-lg); }
+  .contact__links { display: grid; max-width: 850px; gap: 12px; }
+  .contact__row { display: grid; grid-template-columns: 120px minmax(0, 1fr) 20px; align-items: center; gap: 16px; padding: 18px 22px; border: 1px solid var(--border); border-radius: var(--radius-card); color: inherit; background: var(--surface); }
+  a.contact__row:hover { border-color: var(--primary); color: inherit; box-shadow: var(--shadow-card); }
+  .contact__row-label { color: var(--muted); font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+  .contact__row-value { min-width: 0; overflow-wrap: anywhere; color: var(--text); font-size: 15px; }
+  .contact__row--placeholder .contact__row-value { color: var(--accent-text); font-family: var(--font-mono); font-size: 12px; }
+  .contact__row-arrow { color: var(--accent); font-size: 17px; text-align: right; }
+  @media (max-width: 760px) {
+    .contact__title { font-size: var(--page-title-mobile); }
+    .contact__desc { font-size: 16px; }
+    .contact__row { grid-template-columns: 1fr auto; gap: 8px; padding: 16px; }
+    .contact__row-value { grid-column: 1; }
+    .contact__row-arrow { grid-column: 2; grid-row: 1 / span 2; }
   }
 </style>
