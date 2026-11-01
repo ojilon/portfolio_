@@ -1,0 +1,52 @@
+---
+export interface Props {
+  items: { src: string; alt: string; caption: string }[];
+  cols?: number;
+}
+const { items, cols = 3 } = Astro.props;
+---
+<div class="gallery" style={`--cols: ${cols};`}>
+  {items.map((item) => (
+    <figure class="gallery__item">
+      <img
+        src={item.src}
+        alt={item.alt}
+        width={400}
+        height={267}
+        loading="lazy"
+        class="gallery__img"
+      />
+      <figcaption class="gallery__caption">{item.caption}</figcaption>
+    </figure>
+  ))}
+</div>
+
+<style>
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), 1fr);
+    gap: 16px;
+  }
+  .gallery__item {
+    display: flex;
+    flex-direction: column;
+  }
+  .gallery__img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .gallery__caption {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+  }
+  @media (max-width: 640px) {
+    .gallery { --cols: 1; }
+    .gallery__img { height: 160px; }
+  }
+</style>

@@ -1,0 +1,130 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+import StatusBadge from "@/components/StatusBadge.astro";
+import TagChip from "@/components/TagChip.astro";
+import { getCollection, type CollectionEntry, render } from "astro:content";
+import { formatDate } from "@/utils/date";
+
+export async function getStaticPaths() {
+  const notes = await getCollection("notes");
+  return notes.map((note) => ({
+    params: { slug: note.id },
+    props: { note },
+  }));
+}
+
+interface Props {
+  note: CollectionEntry<"notes">;
+}
+const { note } = Astro.props;
+const { Content } = await render(note);
+const data = note.data;
+const draft = data.draft ?? true;
+const title = data.title;
+const desc = `${data.summary} — ${data.subject} revision note by Ojilong Yusuf.`;
+const noindex = draft;
+
+const jsonLd = draft
+  ? undefined
+  : JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: title,
+      description: data.summary,
+      author: { "@type": "Person", name: "Ojilong Yusuf" },
+      datePublished: data.updated,
+    });
+---
+<BaseLayout
+  title={title}
+  description={desc}
+  pathname={Astro.url.pathname}
+  noindex={noindex}
+  jsonLd={jsonLd}
+>
+  <section class="note-detail section">
+    <div class="container">
+      <article class="note">
+        <header class="note__head">
+          <p class="note__eyebrow eyebrow">
+            <span class="accent-dot" aria-hidden="true"></span>
+            REVISION NOTE
+          </p>
+          <h1 class="note__title">{title}</h1>
+          <div class="note__meta">
+            <TagChip label={data.subject} />
+            <TagChip label={data.topic} />
+            <span class="note__updated">
+              <span class="accent-dot" aria-hidden="true"></span>
+              Updated on {formatDate(data.updated)}
+            </span>
+          </div>
+          {draft && (
+            <p class="note__draft-banner">
+              <span class="accent-dot" aria-hidden="true"></span>
+              This note is coming soon.
+            </p>
+          )}
+        </header>
+        <div class="note__body">
+          <Content />
+        </div>
+      </article>
+      <a href="/teaching#notes" class="note__back">← Browse revision notes</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .note__head { margin-bottom: 22px; }
+  .note__eyebrow { margin: 0 0 12px 0; }
+  .note__title {
+    font-size: var(--h1-desktop);
+    line-height: 1.05;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.01em;
+  }
+  @media (max-width: 768px) { .note__title { font-size: var(--h1-mobile); } }
+  .note__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 0 0 14px 0;
+  }
+  .note__updated {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-left: auto;
+  }
+  .note__draft-banner {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0;
+  }
+  .note__body {
+    font-size: var(--text-lg);
+    line-height: var(--leading-body);
+    color: var(--text);
+  }
+  .note__body p { margin: 0 0 16px 0; }
+  .note__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 30px;
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 15px;
+  }
+  .note__back:hover { text-decoration: underline; }
+</style>

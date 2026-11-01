@@ -1,0 +1,111 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection, type CollectionEntry, render } from "astro:content";
+import { formatDate } from "@/utils/date";
+
+export async function getStaticPaths() {
+  const journal = await getCollection("journal");
+  return journal.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<"journal">;
+}
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const data = entry.data;
+const draft = data.draft ?? true;
+const title = data.title;
+const desc = `${data.excerpt} — Teaching journal entry by Ojilong Yusuf.`;
+const noindex = draft;
+---
+<BaseLayout
+  title={title}
+  description={desc}
+  pathname={Astro.url.pathname}
+  noindex={noindex}
+>
+  <section class="journal-detail section">
+    <div class="container">
+      <article class="entry">
+        <header class="entry__head">
+          <p class="entry__eyebrow eyebrow">
+            <span class="accent-dot" aria-hidden="true"></span>
+            PRACTICE JOURNAL
+          </p>
+          <h1 class="entry__title">{title}</h1>
+          <div class="entry__meta">
+            <span class="entry__date">
+              <span class="accent-dot" aria-hidden="true"></span>
+              {formatDate(data.date)}
+            </span>
+            {draft && (
+              <span class="entry__draft">
+                <span class="accent-dot" aria-hidden="true"></span>
+                Sample entry · replace with your journal
+              </span>
+            )}
+          </div>
+        </header>
+        <div class="entry__body">
+          <Content />
+        </div>
+      </article>
+      <a href="/teaching#journal" class="entry__back">← Browse journal</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .entry__head { margin-bottom: 22px; }
+  .entry__eyebrow { margin: 0 0 12px 0; }
+  .entry__title {
+    font-size: var(--h1-desktop);
+    line-height: 1.05;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.01em;
+  }
+  @media (max-width: 768px) { .entry__title { font-size: var(--h1-mobile); } }
+  .entry__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    margin: 0 0 14px 0;
+  }
+  .entry__date {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .entry__draft {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .entry__body {
+    font-size: var(--text-lg);
+    line-height: var(--leading-body);
+    color: var(--text);
+  }
+  .entry__body p { margin: 0 0 16px 0; }
+  .entry__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 30px;
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 15px;
+  }
+  .entry__back:hover { text-decoration: underline; }
+</style>

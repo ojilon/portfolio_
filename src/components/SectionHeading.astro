@@ -1,0 +1,43 @@
+---
+export interface Props {
+  label: string;
+  level?: 2 | 3 | 4;
+  dot?: boolean;
+}
+const { label, level = 2, dot = true } = Astro.props;
+const Tag = level === 3 ? "h3" : level === 4 ? "h4" : "h2";
+---
+<{Tag} class="section-heading">
+  {dot && <span class="section-heading__dot" aria-hidden="true">&#9733;</span>}
+  {label}
+</{Tag}>
+
+<style>
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 16px 0;
+    letter-spacing: -0.01em;
+  }
+  .section-heading__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: block;
+    flex-shrink: 0;
+  }
+  h2.section-heading {
+    font-size: 40px;
+    line-height: 1.05;
+  }
+  @media (max-width: 640px) {
+    h2.section-heading {
+      font-size: 30px;
+    }
+  }
+</style>

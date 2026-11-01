@@ -1,0 +1,77 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { timeline } from "@/data/timeline";
+import { site } from "@/data/site";
+
+const desc =
+  "About Ojilong Yusuf — biology and chemistry teacher trainee at Kyambogo University, Uganda, learning to code and building tools for education.";
+const title = "About | Ojilong Yusuf";
+---
+<BaseLayout title={title} description={desc} pathname={Astro.url.pathname} ogImage="/og-default.png">
+  <section class="about section">
+    <div class="container">
+      <div class="about__head">
+        <p class="about__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>ABOUT</p>
+        <h1 class="about__title">From curious learner to teacher who builds.</h1>
+      </div>
+      <p class="about__intro">
+        I’m studying biology and education at Kyambogo University (Soroti Learning Centre) and I’m in Year 2 of teacher training.
+        I’m also learning to code on my own, and I want to bridge technology and education in Uganda — building small,
+        practical tools that make learning a little easier. <span class="placeholder">TODO: replace</span>
+      </p>
+      <section class="about__journey">
+        <div class="journey__head">
+          <p class="journey__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>JOURNEY</p>
+          <h2 class="journey__title">The path so far.</h2>
+        </div>
+        <ul class="timeline">
+          {timeline.map((item) => (
+            <li class="timeline__item"><span class="timeline__dot" aria-hidden="true"></span><time class="timeline__year">{item.year}</time><p class="timeline__text">{item.title}</p></li>
+          ))}
+        </ul>
+      </section>
+      <section class="about__care">
+        <div class="care__head">
+          <p class="care__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>WHAT I CARE ABOUT</p>
+          <h2 class="care__title">Building with the learner in mind.</h2>
+        </div>
+        <div class="care__grid">
+          <div class="care__card"><h3 class="care__card-title">Local-first tools</h3><p class="care__card-text">Software that works on the devices and connections learners already have.</p></div>
+          <div class="care__card"><h3 class="care__card-title">Learning by building small</h3><p class="care__card-text">Starting with a small tool, learning from the people using it, and improving together.</p></div>
+          <div class="care__card"><h3 class="care__card-title">Technology that fits the learner</h3><p class="care__card-text">Practical before impressive — tools that meet learners where they are.</p></div>
+        </div>
+      </section>
+      <div class="about__cta">
+        <a href="/contact" class="btn btn--fill">Get in touch<span class="link-arrow">↗</span></a>
+        <a href="/projects" class="btn btn--outline">See my projects<span class="link-arrow">↗</span></a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about__head { margin-bottom: 30px; }
+  .about__eyebrow { margin: 0 0 12px 0; }
+  .about__title { font-size: 40px; line-height: 1.05; margin: 0 0 16px 0; }
+  @media (max-width: 768px) { .about__title { font-size: 30px; } }
+  .about__intro { font-size: var(--text-lg); line-height: var(--leading-body); color: var(--text); margin: 0 0 40px 0; max-width: 560px; }
+  .placeholder { color: var(--accent); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .journey__eyebrow { margin: 0 0 10px 0; }
+  .journey__title { font-size: var(--h2-desktop); line-height: 1.05; margin: 0 0 24px 0; }
+  @media (max-width: 768px) { .journey__title { font-size: var(--h2-mobile); } }
+  .timeline { display: flex; flex-direction: column; gap: 26px; padding-left: 30px; border-left: 1px solid var(--border); margin: 0; }
+  .timeline__item { position: relative; padding-left: 22px; }
+  .timeline__item::before { content: ""; position: absolute; left: -8px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+  .timeline__year { font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--primary); display: block; margin: 0 0 4px 0; }
+  .timeline__text { font-size: 15px; line-height: 1.5; color: var(--text); margin: 0; }
+  .care__eyebrow { margin: 0 0 10px 0; }
+  .care__title { font-size: var(--h2-desktop); line-height: 1.05; margin: 0 0 22px 0; }
+  @media (max-width: 768px) { .care__title { font-size: var(--h2-mobile); } }
+  .care__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 800px) { .care__grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) { .care__grid { grid-template-columns: 1fr; } }
+  .care__card { border-radius: var(--radius-card); border: 1px solid var(--border); background: var(--surface); padding: 22px 20px; }
+  .care__card-title { font-size: 16px; font-weight: 700; color: var(--ink); margin: 0 0 8px 0; }
+  .care__card-text { font-size: 14px; line-height: 1.5; color: var(--text); margin: 0; }
+  .about__cta { margin-top: 36px; display: flex; gap: 12px; flex-wrap: wrap; }
+</style>

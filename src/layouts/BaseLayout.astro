@@ -1,0 +1,90 @@
+---
+import "@fontsource-variable/noto-sans";
+import "@fontsource/jetbrains-mono";
+import "@/styles/tokens.css";
+import "@/styles/global.css";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { site } from "@/data/site";
+
+interface Props {
+  title: string;
+  description: string;
+  pathname: string;
+  ogImage?: string;
+  noindex?: boolean;
+  jsonLd?: string;
+}
+
+const {
+  title,
+  description,
+  pathname,
+  ogImage = "/og-default.png",
+  noindex = false,
+  jsonLd,
+} = Astro.props;
+
+const siteUrl = (process.env.SITE_URL as string | undefined) ?? "https://example.com";
+const canonical = pathname.startsWith("http") ? pathname : `${siteUrl}${pathname}`;
+---
+<!DOCTYPE html>
+<html lang="en" class="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Theme applied before paint to avoid flash -->
+    <script is:inline>
+      (function () {
+        const DARK_CLASS = "dark";
+        const STORAGE_KEY = "ojilong-theme";
+        function getSystemTheme() {
+          return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        function applyTheme(theme) {
+          if (theme === "dark") document.documentElement.classList.add(DARK_CLASS);
+          else document.documentElement.classList.remove(DARK_CLASS);
+        }
+        try {
+          const stored = window.localStorage.getItem(STORAGE_KEY);
+          applyTheme(stored ? stored : getSystemTheme());
+        } catch (e) {
+          applyTheme(getSystemTheme());
+        }
+      })();
+    </script>
+
+    {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
+  </head>
+  <body>
+    <Header />
+    <main><slot /></main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  :global(html) {
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(html) {
+      scroll-behavior: auto;
+    }
+  }
+</style>

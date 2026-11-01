@@ -1,0 +1,114 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ProjectPreview from "@/components/ProjectPreview.astro";
+import StatusBadge from "@/components/StatusBadge.astro";
+import TagChip from "@/components/TagChip.astro";
+import Gallery from "@/components/Gallery.astro";
+import { projects } from "@/data/projects";
+import { site } from "@/data/site";
+import { formatDate } from "@/utils/date";
+
+export function getStaticPaths() {
+  return projects.map((p) => ({ params: { slug: p.slug }, props: { project: p } }));
+}
+interface Props { project: (typeof projects)[number]; }
+const { project } = Astro.props;
+const statusLabel = project.status.charAt(0).toUpperCase() + project.status.slice(1);
+const desc = `${project.name} — ${project.summary}`;
+const title = `${project.name} | Ojilong Yusuf`;
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org", "@type": "SoftwareSourceCode", name: project.name,
+  description: project.summary, author: { "@type": "Person", name: site.name },
+  codeRepository: project.repoUrl, url: `https://example.com/projects/${project.slug}`,
+});
+const releaseTiles = () => [
+  { label: "Release page", url: project.releaseUrl },
+  { label: "Documentation", url: project.docsUrl },
+  { label: "Source code", url: project.repoUrl },
+];
+---
+<BaseLayout title={title} description={desc} pathname={Astro.url.pathname} ogImage={project.screenshot ?? "/og-default.png"}>
+  <section class="project-detail section">
+    <div class="container">
+      <div class="detail__top">
+        <div class="detail__text">
+          <p class="detail__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>PROJECT DETAIL &middot; {statusLabel}</p>
+          <h1 class="detail__title">{project.name}<span class="dot">.</span></h1>
+          <p class="detail__desc">{project.summary}</p>
+          <div class="detail__tags">{project.tags.map((t) => <TagChip label={t} />)}</div>
+          <div class="detail__actions">
+            <a href="#project-links" class="btn btn--outline">Explore release links<span class="link-arrow">↓</span></a>
+            <a href="/projects" class="btn btn--outline">Back to projects<span class="link-arrow">↗</span></a>
+          </div>
+          <p class="detail__updated updated"><span class="accent-dot" aria-hidden="true"></span>Updated on {formatDate(project.updated)}</p>
+        </div>
+        <div class="detail__preview"><ProjectPreview previewKind={project.previewKind} screenshot={project.screenshot} alt={`Preview of ${project.name}`} /></div>
+      </div>
+      <hr class="section-line" />
+      <section class="detail-look" id="look">
+        <div class="look__head"><div>
+          <p class="look__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>A CLOSER LOOK</p>
+          <h2 class="look__title">Screens &amp; details.</h2>
+        </div></div>
+        <div class="look__gallery">
+          {project.gallery ? <Gallery items={project.gallery.map((src, i) => ({ src, alt: `${project.name} — view ${i + 1}`, caption: ["Overview", "Workflow", "Detail view"][i] ?? `View ${i + 1}` }))} cols={3} /> : null}
+        </div>
+      </section>
+      <hr class="section-line" />
+      <section class="detail-reason">
+        <div class="reason__inner container">
+          <div class="reason__text">
+            <p class="reason__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>THE REASON BEHIND IT</p>
+            <h2 class="reason__title"><span class="reason__line--one">{project.reasonTitle[0]}</span><span class="reason__line--two">{project.reasonTitle[1]}</span></h2>
+            {project.reasonBody.map((para) => <p class="reason__para">{para}</p>)}
+          </div>
+          <div class="reason__links" id="project-links">
+            <div class="links-card">
+              <p class="links-card__title">Project links</p>
+              {releaseTiles().map((tile) => {
+                const empty = !tile.url;
+                return <div class="links-card__row"><span class="links-card__label">{tile.label}</span>{empty ? <span class="links-card__empty">add URL</span> : <a href={tile.url} class="links-card__open">Open<span class="link-arrow">↗</span></a>}</div>;
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .detail__top { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+  @media (max-width: 768px) { .detail__top { grid-template-columns: 1fr; gap: 30px; } }
+  .detail__eyebrow { margin: 0 0 12px 0; }
+  .detail__title { font-size: var(--h1-desktop); line-height: 1.0; letter-spacing: -0.03em; margin: 0 0 14px 0; display: flex; align-items: baseline; gap: 8px; }
+  @media (max-width: 768px) { .detail__title { font-size: var(--h1-mobile); } }
+  .detail__title .dot { color: var(--accent); font-weight: 700; }
+  .detail__desc { font-size: var(--text-lg); line-height: var(--leading-body); color: var(--text); margin: 0 0 14px 0; max-width: 460px; }
+  .detail__tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px 0; }
+  .detail__actions { display: flex; gap: 12px; flex-wrap: wrap; margin: 0 0 16px 0; }
+  .detail__updated { font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--primary); margin: 0; }
+  .detail__preview { width: 100%; height: 360px; flex-shrink: 0; }
+  @media (max-width: 768px) { .detail__preview { height: 260px; } }
+  .detail-look { margin-top: 8px; }
+  .look__eyebrow { margin: 0 0 10px 0; }
+  .look__title { font-size: var(--h2-desktop); line-height: 1.05; margin: 0 0 20px 0; }
+  @media (max-width: 768px) { .look__title { font-size: var(--h2-mobile); } }
+  .look__gallery { display: flex; gap: 16px; flex-wrap: wrap; }
+  .detail-reason { margin-top: 8px; }
+  .reason__inner { display: grid; grid-template-columns: 1fr 320px; gap: 40px; align-items: start; }
+  @media (max-width: 900px) { .reason__inner { grid-template-columns: 1fr; gap: 30px; } }
+  .reason__eyebrow { margin: 0 0 12px 0; }
+  .reason__title { font-size: 30px; line-height: 1.1; margin: 0 0 16px 0; color: var(--ink); }
+  .reason__line--one { color: var(--ink); }
+  .reason__line--two { color: var(--primary); display: block; }
+  .reason__para { font-size: var(--text-lg); line-height: var(--leading-body); color: var(--text); margin: 0 0 16px 0; max-width: 460px; }
+  .links-card { border-radius: var(--radius-card); border: 1px solid var(--border); background: var(--surface); padding: 20px; }
+  .links-card__title { font-weight: 700; font-size: 15px; color: var(--ink); margin: 0 0 14px 0; letter-spacing: -0.01em; }
+  .links-card__row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .links-card__row:last-child { border-bottom: none; }
+  .links-card__label { color: var(--text); }
+  .links-card__open { font-weight: 700; color: var(--primary); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .links-card__open:hover { text-decoration: underline; }
+  .links-card__empty { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+</style>

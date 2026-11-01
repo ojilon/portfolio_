@@ -1,0 +1,35 @@
+---
+export interface Props {
+  items: { label: string; url: string }[];
+  vertical?: boolean;
+}
+const { items, vertical = false } = Astro.props;
+const navStyle = `flex-direction: ${vertical ? "column" : "row"}; gap: ${vertical ? 12 : 20}px; align-items: ${vertical ? "flex-start" : "center"};`;
+---
+<nav class="linklist" aria-label="Links" style={navStyle}>
+  {items.map((item, i) => (
+    <>
+      <a class="linklist__item" href={item.url}>{item.label}</a>
+      {i < items.length - 1 && vertical && <span class="linklist__divider" aria-hidden="true">·</span>}
+    </>
+  ))}
+</nav>
+
+<style>
+  .linklist__item {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--primary);
+    padding: 4px 0;
+  }
+  .linklist__item:hover {
+    text-decoration: underline;
+  }
+  .linklist__divider {
+    color: var(--muted);
+    font-size: 12px;
+  }
+</style>

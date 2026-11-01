@@ -1,0 +1,101 @@
+---
+export interface Props {
+  title: string;
+  subject: "Biology" | "Chemistry";
+  topic: string;
+  summary: string;
+  slug: string;
+  updated?: string;
+  draft?: boolean;
+}
+const { title, subject, topic, summary, slug, updated, draft } = Astro.props;
+const subjectColors: Record<string, { bg: string; text: string }> = {
+  Biology: { bg: "#E6ECE7", text: "#14524A" },
+  Chemistry: { bg: "#F6E6DC", text: "#A5501F" },
+};
+const sc = subjectColors[subject] ?? subjectColors.Biology;
+---
+<article class="card" data-note-card data-subject={subject} data-topic={topic}>
+  <a class="card__link" href={`/teaching/notes/${slug}`}>
+    <div class="card__top">
+      <span class="card__subject" style={`--sc-bg: ${sc.bg}; --sc-text: ${sc.text};`}>
+        {subject}
+      </span>
+      <span class="card__topic">{topic}</span>
+    </div>
+    <h3 class="card__title">{title}</h3>
+    <p class="card__summary">{summary}</p>
+  </a>
+  {draft && (
+    <p class="card__draft">Sample entry · replace with your journal</p>
+  )}
+</article>
+
+<style>
+  .card {
+    border-radius: var(--radius-card);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .card__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+  }
+  .card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .card__subject {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    background: var(--sc-bg);
+    color: var(--sc-text);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+  }
+  .card__topic {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .card__title {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 8px 0;
+    color: var(--ink);
+  }
+  .card__summary {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+    margin: 0;
+    flex: 1;
+  }
+  .card__draft {
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+</style>

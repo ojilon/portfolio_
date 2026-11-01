@@ -1,0 +1,62 @@
+---
+export interface Props {
+  previewKind: "phone-pc" | "browser" | "terminal" | "code" | "shortcut";
+  screenshot?: string;
+  width?: number;
+  height?: number;
+  alt?: string;
+}
+const { previewKind, screenshot, width = 400, height = 225, alt = "Concept preview" } = Astro.props;
+---
+<section class="preview" style={`--preview-w: ${width}px; --preview-h: ${height}px;`}>
+  {screenshot ? (
+    <img src={screenshot} alt={alt} width={width} height={height} loading="lazy" class="preview__img" />
+  ) : (
+    <>
+      <div class={`preview__illustration preview__illustration--${previewKind}`}></div>
+      <p class="preview__caption">CONCEPT PREVIEW · SCREENSHOT PLACEHOLDER</p>
+    </>
+  )}
+</section>
+
+<style>
+  .preview {
+    width: 100%; height: var(--preview-h); border-radius: var(--radius-card);
+    border: 1px solid var(--border); background: var(--surface); overflow: hidden;
+    display: flex; align-items: center; justify-content: center; position: relative;
+  }
+  .preview__img { width: 100%; height: 100%; object-fit: cover; }
+  .preview__caption {
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); background: rgba(253,252,248,0.85);
+    padding: 4px 10px; border-radius: 9999px; border: 1px solid var(--border);
+  }
+  .dark .preview__caption { background: rgba(22,36,31,0.85); }
+  .preview__illustration { width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
+  .blk { background: var(--border); border-radius: 6px; }
+  .preview__illustration--phone-pc { background: var(--sage); }
+  .pp-phone, .pp-window { position: absolute; border-radius: 24px; border: 10px solid var(--ink); background: var(--surface); }
+  .pp-phone { width: 42%; height: 72%; left: 10%; top: 14%; }
+  .pp-window { width: 42%; height: 46%; right: 10%; top: 44%; }
+  .pp-arrow { position: absolute; left: 54%; top: 48%; width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 9px solid var(--accent); }
+  .pp-screen { width: 84%; height: 30%; margin: 0 auto 6px auto; } .pp-screen.small { height: 16%; width: 70%; }
+  .pp-bar { width: 90%; height: 8%; background: var(--border); border-radius: 6px; margin: 0 auto; }
+  .preview__illustration--browser { background: var(--sand); }
+  .bb-window { width: 80%; height: 72%; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); display: flex; }
+  .bb-sidebar { width: 22%; border-right: 1px solid var(--border); background: var(--sage); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .bb-sitem { height: 12%; background: var(--border); border-radius: 6px; }
+  .bb-main { flex: 1; padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .bb-block { height: 38%; background: var(--border); border-radius: 8px; }
+  .preview__illustration--terminal { background: var(--code-bg); color: var(--code-text); }
+  .tt-panel { width: 86%; height: 70%; border-radius: 10px; border: 1px solid rgba(207,227,216,0.15); padding: 16px 18px; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; white-space: pre; }
+  .preview__illustration--code, .preview__illustration--shortcut { background: var(--sage); }
+  .preview__illustration--shortcut { background: var(--peach); }
+  .cc-editor { width: 86%; height: 70%; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); position: relative; overflow: hidden; }
+  .cc-line { height: 22%; background: var(--border); border-radius: 6px; margin: 0 16px 8px 16px; }
+  .cc-line.short { width: 60%; height: 14%; }
+  .cc-tile { position: absolute; right: 18px; bottom: 18px; width: 44px; height: 44px; border-radius: 8px; font-family: var(--font-mono); font-weight: 700; display: grid; place-items: center; font-size: 18px; }
+  .preview__illustration--code .cc-tile { background: var(--primary); color: #fff; }
+  .preview__illustration--shortcut .cc-tile { background: var(--accent); color: #fff; }
+  @media (max-width: 640px) { .preview { height: 200px; } }
+</style>
