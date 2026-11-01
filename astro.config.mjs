@@ -27,13 +27,16 @@ for (const collection of ["notes", "journal"]) {
 }
 
 export default defineConfig({
-  site: process.env.SITE_URL ?? "https://example.com",
+  site: process.env.SITE_URL ?? "https://meetojilongyusuf.yusuf-ojilong.workers.dev",
   integrations: [
     sitemap({
       filter: (page) => {
         const pathname = new URL(page).pathname.replace(/\/+$/, "") || "/";
         return !draftRoutes.has(pathname);
       },
+      customPages: [
+              "https://meetojilongyusuf.yusuf-ojilong.workers.dev",
+            ],
     }),
   ],
   output: "static",
