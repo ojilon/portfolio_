@@ -1,10 +1,9 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import SectionHeading from "@/components/SectionHeading.astro";
-import StatusBadge from "@/components/StatusBadge.astro";
 import TagChip from "@/components/TagChip.astro";
 import { getCollection, type CollectionEntry, render } from "astro:content";
 import { formatDate } from "@/utils/date";
+import { fitDescription } from "@/utils/seo";
 
 export async function getStaticPaths() {
   const notes = await getCollection("notes");
@@ -22,7 +21,8 @@ const { Content } = await render(note);
 const data = note.data;
 const draft = data.draft ?? true;
 const title = data.title;
-const desc = `${data.summary} — ${data.subject} revision note by Ojilong Yusuf.`;
+const pageTitle = `${title} | Ojilong Yusuf`;
+const desc = fitDescription(`${data.summary} Read this ${data.subject.toLowerCase()} revision note by Ojilong Yusuf, a teacher trainee at Kyambogo University in Uganda.`);
 const noindex = draft;
 
 const jsonLd = draft
@@ -37,7 +37,7 @@ const jsonLd = draft
     });
 ---
 <BaseLayout
-  title={title}
+  title={pageTitle}
   description={desc}
   pathname={Astro.url.pathname}
   noindex={noindex}
@@ -108,7 +108,7 @@ const jsonLd = draft
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--accent);
+    color: var(--accent-text);
     margin: 0;
   }
   .note__body {

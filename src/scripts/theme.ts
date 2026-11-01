@@ -4,13 +4,13 @@
   const DARK_CLASS = "dark";
   const STORAGE_KEY = "ojilong-theme";
 
-  function getSystemTheme() {
+  function getSystemTheme(): "dark" | "light" {
     return window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
       : "light";
   }
 
-  function applyTheme(theme) {
+  function applyTheme(theme: "dark" | "light") {
     if (theme === "dark") {
       document.documentElement.classList.add(DARK_CLASS);
     } else {
@@ -20,8 +20,9 @@
 
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    applyTheme(stored ? stored : getSystemTheme());
-  } catch (e) {
+    const theme = stored === "dark" || stored === "light" ? stored : getSystemTheme();
+    applyTheme(theme);
+  } catch {
     applyTheme(getSystemTheme());
   }
 })();

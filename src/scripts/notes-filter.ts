@@ -1,54 +1,34 @@
-(function () {
-  const SUBJECTS = ["All subjects", "Biology", "Chemistry"];
-  const CONTAINER = document.querySelector('[data-notes-filter]');
-  if (!CONTAINER) return;
+const filterRoot = document.querySelector<HTMLElement>("[data-notes-filter]");
+if (filterRoot) {
+  const cards = [...filterRoot.querySelectorAll<HTMLElement>("[data-note-card]")];
+  const buttons = [...filterRoot.querySelectorAll<HTMLButtonElement>("[data-subject-pill]")];
+  const topicSelect = filterRoot.querySelector<HTMLSelectElement>("[data-topic-select]");
+  const emptyMessage = filterRoot.querySelector<HTMLElement>("[data-filter-empty]");
 
-  const cards = Array.from(CONTAINER.querySelectorAll('[data-note-card]'));
-  const subjectPills = Array.from(CONTAINER.querySelectorAll('[data-subject-pill]'));
-  const topicSelect = CONTAINER.querySelector('[data-topic-select]');
-
-  // Build topic list from cards' data-topic attributes
-  const topics = [...new Set(cards.map((c) => c.dataset.topic).filter(Boolean))].sort();
-  if (topicSelect) {
-    topics.forEach((t) => {
-      const o = document.createElement("option");
-      o.value = t;
-      o.textContent = t;
-      topicSelect.appendChild(o);
-    });
-  }
-
-  function matchesSubject(card, subject) {
-    if (subject === "All subjects") return true;
-    return card.dataset.subject === subject;
-  }
-  function matchesTopic(card, topic) {
-    if (!topic || topic === "All topics") return true;
-    return card.dataset.topic === topic;
-  }
-
-  function filter() {
-    const subject = subjectPills.find((p) => p.classList.contains("active"))?.dataset.subject ?? "All subjects";
-    const topic = topicSelect ? topicSelect.value : "";
+  function applyFilters() {
+    const subject = buttons.find((button) => button.getAttribute("aria-pressed") === "true")?.dataset.subject ?? "All subjects";
+    const topic = topicSelect?.value ?? "";
+    let visibleCount = 0;
     cards.forEach((card) => {
-      const show = matchesSubject(card, subject) && matchesTopic(card, topic);
-      card.style.display = show ? "" : "none";
-      card.setAttribute("aria-hidden", String(!show));
+      const subjectMatches = subject === "All subjects" || card.dataset.subject === subject;
+      const topicMatches = !topic || card.dataset.topic === topic;
+      const visible = subjectMatches && topicMatches;
+      card.hidden = !visible;
+      card.setAttribute("aria-hidden", String(!visible));
+      if (visible) visibleCount += 1;
     });
+    if (emptyMessage) emptyMessage.hidden = visibleCount > 0;
   }
 
-  subjectPills.forEach((pill) => {
-    pill.addEventListener("click", () => {
-      subjectPills.forEach((p) => p.classList.remove("active"));
-      pill.classList.add("active");
-      filter();
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      buttons.forEach((candidate) => {
+        const active = candidate === button;
+        candidate.setAttribute("aria-pressed", String(active));
+        candidate.classList.toggle("active", active);
+      });
+      applyFilters();
     });
   });
-
-  if (topicSelect) {
-    topicSelect.addEventListener("change", filter);
-  }
-
-  // Initialize
-  filter();
-})();
+  topicSelect?.addEventListener("change", applyFilters);
+}

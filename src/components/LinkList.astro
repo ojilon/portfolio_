@@ -4,32 +4,27 @@ export interface Props {
   vertical?: boolean;
 }
 const { items, vertical = false } = Astro.props;
-const navStyle = `flex-direction: ${vertical ? "column" : "row"}; gap: ${vertical ? 12 : 20}px; align-items: ${vertical ? "flex-start" : "center"};`;
 ---
-<nav class="linklist" aria-label="Links" style={navStyle}>
-  {items.map((item, i) => (
+<nav class:list={["linklist", { "linklist--vertical": vertical }]} aria-label="Social links">
+  {items.map((item, index) => (
     <>
-      <a class="linklist__item" href={item.url}>{item.label}</a>
-      {i < items.length - 1 && vertical && <span class="linklist__divider" aria-hidden="true">·</span>}
+      {item.url.includes("TODO:") ? (
+        <span class="linklist__item linklist__placeholder" aria-label={`${item.label} address needs to be added`}>{item.label}</span>
+      ) : (
+        <a class="linklist__item" href={item.url}>{item.label}</a>
+      )}
+      {index < items.length - 1 && <span class="linklist__divider" aria-hidden="true"></span>}
     </>
   ))}
 </nav>
 
 <style>
-  .linklist__item {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--primary);
-    padding: 4px 0;
-  }
-  .linklist__item:hover {
-    text-decoration: underline;
-  }
-  .linklist__divider {
-    color: var(--muted);
-    font-size: 12px;
-  }
+  .linklist { display: flex; align-items: center; gap: 14px; }
+  .linklist--vertical { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .linklist__item { color: var(--primary); font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; white-space: nowrap; }
+  .linklist__item:hover { text-decoration: underline; }
+  .linklist__placeholder { color: var(--muted); cursor: default; }
+  .linklist__divider { width: 1px; height: 14px; background: var(--border); }
+  .linklist--vertical .linklist__divider { display: none; }
+  @media (max-width: 640px) { .linklist { justify-content: center; gap: 12px; } .linklist__item { font-size: 10px; } }
 </style>
