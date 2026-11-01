@@ -1,114 +1,96 @@
-/* Design tokens — light theme (default) */
+/* Shared design tokens, tuned to the portfolio reference screens. */
 :root {
-  /* Colours */
   --bg: #F6F7F2;
   --surface: #FDFCF8;
   --ink: #1B342C;
   --text: #4A5B54;
-  --muted: #7A8882;
+  --muted: #65746D;
   --primary: #14524A;
   --sage: #E6ECE7;
   --sage-strong: #DCE8E3;
   --sand: #EDE9DE;
-  --accent: #D9784F;
+  --lavender: #E9EDF2;
+  --accent: #C76643;
+  --accent-text: #A64C2D;
   --peach: #F6E6DC;
   --border: #E3E6DE;
   --code-bg: #1B342C;
   --code-text: #CFE3D8;
 
-  /* Typography */
+  --status-released-bg: #E0EFE7;
+  --status-released-text: #1F6B4F;
+  --status-progress-bg: #F8E6D9;
+  --status-progress-text: #A5501F;
+  --status-idea-bg: #E8E9F5;
+  --status-idea-text: #5A5FA8;
+  --button-primary-text: #FFFFFF;
+  --subject-biology-bg: #E6ECE7;
+  --subject-biology-text: #14524A;
+  --subject-chemistry-bg: #F6E6DC;
+  --subject-chemistry-text: #A5501F;
+
   --font-body: "Noto Sans Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-
-  /* Sizes / spacing */
   --radius-card: 20px;
   --radius-panel: 28px;
   --radius-pill: 9999px;
-  --radius-avatar: 40px;
-
   --space-xs: 8px;
   --space-sm: 16px;
   --space-md: 24px;
   --space-lg: 32px;
   --space-xl: 40px;
-  --space-section: 96px;
-
-  --container-max: 1200px;
+  --space-section: 80px;
+  --container-max: 1280px;
   --container-pad: 40px;
-
-  /* Font sizes */
   --text-xs: 11px;
   --text-sm: 14px;
   --text-base: 16px;
   --text-lg: 18px;
-
-  --h2-desktop: 40px;
-  --h2-mobile: 30px;
   --h1-desktop: 72px;
   --h1-mobile: 44px;
-
-  /* Line heights */
+  --h2-desktop: 40px;
+  --h2-mobile: 30px;
+  --page-title: 56px;
+  --page-title-mobile: 40px;
   --leading-body: 1.6;
-
-  /* Shadows */
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04),
-    0 8px 24px -10px rgba(0, 0, 0, 0.06);
-
-  /* Reduced motion */
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 4%), 0 8px 24px -10px rgb(0 0 0 / 6%);
   --motion: all 0.2s ease;
 }
 
-/* Dark theme */
 .dark {
   --bg: #0F1A17;
   --surface: #16241F;
   --ink: #E8F0EC;
   --text: #B5C4BD;
-  --muted: #86978F;
+  --muted: #A1B0A8;
   --primary: #5CC2AC;
   --sage: #172A24;
   --sage-strong: #1F3A32;
   --sand: #1A2622;
+  --lavender: #202B35;
   --accent: #E58A62;
+  --accent-text: #E58A62;
   --peach: #33241D;
   --border: #27382F;
-  --code-bg: #1B342C;
+  --code-bg: #10201B;
   --code-text: #CFE3D8;
-
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4),
-    0 8px 24px -10px rgba(0, 0, 0, 0.5);
+  --status-released-bg: #1F3A32;
+  --status-released-text: #9CDEC3;
+  --status-progress-bg: #392B20;
+  --status-progress-text: #FFC08A;
+  --status-idea-bg: #292A42;
+  --status-idea-text: #BCBFFF;
+  --button-primary-text: #0F1A17;
+  --subject-biology-bg: #1F3A32;
+  --subject-biology-text: #A4E0C9;
+  --subject-chemistry-bg: #392B20;
+  --subject-chemistry-text: #FFC08A;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 40%), 0 8px 24px -10px rgb(0 0 0 / 50%);
 }
 
-html {
-  line-height: 1.5;
-  tab-size: 4;
-}
-
-body {
-  margin: 0;
-  font-family: var(--font-body);
-  background: var(--bg);
-  color: var(--text);
-}
-
-a {
-  color: var(--primary);
-  text-decoration: none;
-}
-
-a:focus-visible,
-button:focus-visible {
-  outline: 3px solid var(--primary);
-  outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+@media (max-width: 640px) {
+  :root {
+    --container-pad: 20px;
+    --space-section: 64px;
   }
 }

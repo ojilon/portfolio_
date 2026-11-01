@@ -1,52 +1,50 @@
 ---
 export interface Props {
-  items: { src: string; alt: string; caption: string }[];
+  items: { src?: string; alt?: string; caption: string }[];
   cols?: number;
 }
 const { items, cols = 3 } = Astro.props;
+const placeholders: Props["items"] = ["Overview", "Workflow", "Detail view"].map((caption) => ({ caption }));
+const displayItems: Props["items"] = items.length ? items : placeholders;
 ---
 <div class="gallery" style={`--cols: ${cols};`}>
-  {items.map((item) => (
+  {displayItems.map((item, index) => (
     <figure class="gallery__item">
-      <img
-        src={item.src}
-        alt={item.alt}
-        width={400}
-        height={267}
-        loading="lazy"
-        class="gallery__img"
-      />
-      <figcaption class="gallery__caption">{item.caption}</figcaption>
+      {item.src ? (
+        <img src={item.src} alt={item.alt ?? item.caption} width="400" height="267" loading="lazy" class="gallery__visual" />
+      ) : (
+        <div class:list={["gallery__visual", "gallery__placeholder", `gallery__placeholder--${index % 3}`]} aria-hidden="true">
+          <div class="placeholder-window">
+            <span class="placeholder-window__bar"><i></i><i></i><i></i></span>
+            <span class="placeholder-window__side"></span>
+            <span class="placeholder-window__line"></span>
+            <span class="placeholder-window__block"></span>
+            <span class="placeholder-window__block second"></span>
+          </div>
+        </div>
+      )}
+      <figcaption class="gallery__caption">{item.caption}{!item.src && <span> · placeholder</span>}</figcaption>
     </figure>
   ))}
 </div>
 
 <style>
-  .gallery {
-    display: grid;
-    grid-template-columns: repeat(var(--cols), 1fr);
-    gap: 16px;
-  }
-  .gallery__item {
-    display: flex;
-    flex-direction: column;
-  }
-  .gallery__img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: var(--radius-card);
-    border: 1px solid var(--border);
-    background: var(--surface);
-  }
-  .gallery__caption {
-    margin-top: 8px;
-    font-size: 13px;
-    color: var(--muted);
-    font-family: var(--font-mono);
-  }
-  @media (max-width: 640px) {
-    .gallery { --cols: 1; }
-    .gallery__img { height: 160px; }
-  }
+  .gallery { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 14px; }
+  .gallery__item { min-width: 0; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--sage); }
+  .gallery__visual { display: grid; width: 100%; height: 200px; place-items: center; object-fit: cover; }
+  .gallery__placeholder { position: relative; overflow: hidden; background: var(--sage); }
+  .gallery__placeholder--1 { background: var(--sand); }
+  .gallery__placeholder--2 { background: var(--lavender); }
+  .gallery__placeholder::after { position: absolute; top: -105px; right: -70px; width: 210px; height: 210px; border: 1px solid color-mix(in srgb, var(--primary) 15%, transparent); border-radius: 50%; box-shadow: 0 0 0 20px color-mix(in srgb, var(--primary) 4%, transparent); content: ""; }
+  .placeholder-window { position: relative; display: flex; width: 72%; height: 58%; flex-wrap: wrap; gap: 8px; padding: 22px 14px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); box-shadow: var(--shadow-card); }
+  .placeholder-window__bar { position: absolute; inset: 0 0 auto; display: flex; height: 16px; align-items: center; gap: 4px; padding-inline: 8px; border-bottom: 1px solid var(--border); }
+  .placeholder-window__bar i { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+  .placeholder-window__bar i + i { background: #9ABBA9; }
+  .placeholder-window__side { width: 22%; border-radius: 4px; background: var(--sage-strong); }
+  .placeholder-window__line { width: 48%; height: 12%; border-radius: 4px; background: var(--border); }
+  .placeholder-window__block { width: 30%; height: 36%; border-radius: 5px; background: var(--sage-strong); }
+  .placeholder-window__block.second { background: var(--sand); }
+  .gallery__caption { padding: 9px 12px; color: var(--muted); font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  @media (max-width: 900px) { .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 640px) { .gallery { grid-template-columns: 1fr; } .gallery__visual { height: 180px; } }
 </style>

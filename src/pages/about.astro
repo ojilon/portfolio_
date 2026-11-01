@@ -1,8 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { timeline } from "@/data/timeline";
-import { site } from "@/data/site";
-
 const desc =
   "About Ojilong Yusuf — biology and chemistry teacher trainee at Kyambogo University, Uganda, learning to code and building tools for education.";
 const title = "About | Ojilong Yusuf";
@@ -52,10 +50,10 @@ const title = "About | Ojilong Yusuf";
 <style>
   .about__head { margin-bottom: 30px; }
   .about__eyebrow { margin: 0 0 12px 0; }
-  .about__title { font-size: 40px; line-height: 1.05; margin: 0 0 16px 0; }
-  @media (max-width: 768px) { .about__title { font-size: 30px; } }
+  .about__title { font-size: var(--page-title); letter-spacing: -0.035em; margin: 0 0 16px 0; }
+  @media (max-width: 768px) { .about__title { font-size: var(--page-title-mobile); } }
   .about__intro { font-size: var(--text-lg); line-height: var(--leading-body); color: var(--text); margin: 0 0 40px 0; max-width: 560px; }
-  .placeholder { color: var(--accent); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .placeholder { color: var(--accent-text); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
   .journey__eyebrow { margin: 0 0 10px 0; }
   .journey__title { font-size: var(--h2-desktop); line-height: 1.05; margin: 0 0 24px 0; }
   @media (max-width: 768px) { .journey__title { font-size: var(--h2-mobile); } }

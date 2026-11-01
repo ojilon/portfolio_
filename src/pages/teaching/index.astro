@@ -5,19 +5,21 @@ import JournalCard from "@/components/JournalCard.astro";
 import { getCollection } from "astro:content";
 import { formatDate } from "@/utils/date";
 
-const notes = await getCollection("notes");
+const rawNotes = await getCollection("notes");
+const notes = [...rawNotes].sort((a, b) => {
+  const subjectRank = (a.data.subject === "Biology" ? 0 : 1) - (b.data.subject === "Biology" ? 0 : 1);
+  return subjectRank || a.data.title.localeCompare(b.data.title);
+});
 const journals = await getCollection("journal");
-const allUpdated = [...notes, ...journals]
-  .map((e) => (e.data.updated instanceof Date ? e.data.updated : new Date(String(e.data.updated) + "T00:00:00")))
-  .filter((d): d is Date => !isNaN(d.getTime()));
-const updated = allUpdated.length ? new Date(Math.max(...allUpdated.map((d) => d.getTime()))) : null;
-const desc =
-  "Revision resources, reflections from the teaching journey and a vision for technology that serves learning, by Ojilong Yusuf, biology and chemistry teacher trainee in Uganda.";
+const updatedValues = rawNotes.map((entry) => entry.data.updated).filter(Boolean);
+const updateTimes = updatedValues.map((date) => date instanceof Date ? date.getTime() : new Date(`${String(date)}T00:00:00`).getTime()).filter(Number.isFinite);
+const updated = updateTimes.length ? new Date(Math.max(...updateTimes)) : null;
+const topics = [...new Set(notes.map((note) => note.data.topic))].sort();
+const desc = "Revision notes, teaching-practice reflections and ideas for practical education technology by Ojilong Yusuf, a biology and chemistry teacher trainee in Uganda.";
 const subjects = ["All subjects", "Biology", "Chemistry"];
-const topics = ["All topics", ...[...new Set(notes.map((n) => n.data.topic))].sort()];
 ---
 <BaseLayout title="Teaching | Ojilong Yusuf" description={desc} pathname={Astro.url.pathname} ogImage="/og-default.png">
-  <section class="teaching section" id="teaching">
+  <section class="teaching section">
     <div class="container">
       <div class="teaching__head">
         <div>
@@ -25,53 +27,60 @@ const topics = ["All topics", ...[...new Set(notes.map((n) => n.data.topic))].so
           <h1 class="teaching__title">Science is better when it makes sense.</h1>
           <p class="teaching__sub">Revision resources, reflections from the teaching journey and a growing vision for technology that serves learning.</p>
         </div>
-        <p class="teaching__updated updated"><span class="accent-dot" aria-hidden="true"></span>{updated ? `Updated on ${formatDate(updated)}` : ""}</p>
+        <p class="teaching__updated updated"><span class="accent-dot" aria-hidden="true"></span>Updated on {updated ? formatDate(updated) : ""}</p>
       </div>
-      <nav class="teaching__tabs" aria-label="Sections">
+      <nav class="teaching__tabs" aria-label="Teaching page sections">
         <a href="#notes" class="teaching__tab">Revision notes</a>
         <a href="#journal" class="teaching__tab">Practice journal</a>
         <a href="#vision" class="teaching__tab">Tech &amp; education</a>
       </nav>
-      <section id="notes" class="teaching__notes">
-        <div class="notes__header">
-          <div>
-            <p class="notes__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>EXPLORE A CONCEPT</p>
-            <h2 class="notes__title">Revision notes</h2>
-            <p class="notes__sub">Quick starting points for biology and chemistry topics. Choose a subject, then narrow by topic.</p>
+
+      <section id="notes" class="teaching__notes" data-notes-filter>
+        <div class="notes__intro">
+          <p class="notes__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>EXPLORE A CONCEPT</p>
+          <h2 class="notes__title">Revision notes</h2>
+          <p class="notes__sub">Quick starting points for biology and chemistry topics. Choose a subject, then narrow by topic.</p>
+        </div>
+        <div class="notes__controls">
+          <div class="subject-pills" role="group" aria-label="Filter notes by subject">
+            {subjects.map((subject, index) => (
+              <button class:list={["subject-pill", { active: index === 0 }]} data-subject-pill data-subject={subject} type="button" aria-pressed={index === 0 ? "true" : "false"}>{subject}</button>
+            ))}
           </div>
-          <div class="notes__controls" data-notes-filter>
-            <div class="subject-pills">
-              {subjects.map((s) => <button class={`subject-pill ${s === "All subjects" ? "active" : ""}`} data-subject={s} type="button">{s}</button>)}
-            </div>
-            <label class="topic-label" for="topic-select" aria-hidden="true">Filter by topic</label>
-            <select id="topic-select" data-topic-select class="topic-select"><option value="">All topics</option></select>
+          <div class="topic-filter">
+            <label for="topic-select">Filter by topic</label>
+            <select id="topic-select" data-topic-select>
+              <option value="">All topics</option>
+              {topics.map((topic) => <option value={topic}>{topic}</option>)}
+            </select>
           </div>
         </div>
         <div class="notes__grid">
-          {notes.map((note) => <NoteCard title={note.data.title} subject={note.data.subject} topic={note.data.topic} summary={note.data.summary} slug={note.id} updated={note.data.updated} draft={note.data.draft ?? true} />)}
+          {notes.map((note) => <NoteCard title={note.data.title} subject={note.data.subject} topic={note.data.topic} summary={note.data.summary} slug={note.id} />)}
         </div>
+        <p class="notes__empty" data-filter-empty hidden>No notes match those filters yet. Try another subject or topic.</p>
       </section>
+
       <hr class="section-line" />
       <section id="journal" class="teaching__journal">
-        <div class="journal__header"><div>
-          <p class="journal__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>REFLECTING ON THE CRAFT</p>
-          <h2 class="journal__title">Teaching practice journal</h2>
-          <p class="journal__sub">Small observations, questions and lesson ideas from the road to the classroom.</p>
-        </div></div>
+        <p class="journal__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>REFLECTING ON THE CRAFT</p>
+        <h2 class="journal__title">Teaching practice journal</h2>
+        <p class="journal__sub">Small observations, questions and lesson ideas from the road to the classroom.</p>
         <div class="journal__grid">
-          {journals.map((j) => <JournalCard title={j.data.title} date={formatDate(j.data.date)} excerpt={j.data.excerpt} slug={j.id} draft={j.data.draft ?? true} />)}
+          {journals.map((entry) => <JournalCard title={entry.data.title} date={formatDate(entry.data.date)} excerpt={entry.data.excerpt} slug={entry.id} draft={entry.data.draft ?? true} />)}
         </div>
       </section>
+
       <hr class="section-line" />
       <section id="vision" class="teaching__vision">
+        <p class="vision__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>A POINT OF VIEW IN PROGRESS</p>
+        <h2 class="vision__title">Technology should meet learning where it is.</h2>
         <div class="vision__panel">
-          <div class="vision__icon" aria-hidden="true">*</div>
+          <div class="vision__icon" aria-hidden="true">✳</div>
           <div class="vision__text">
-            <p class="vision__eyebrow eyebrow"><span class="accent-dot" aria-hidden="true"></span>A POINT OF VIEW IN PROGRESS</p>
-            <h2 class="vision__title">Technology should meet learning where it is.</h2>
-            <p class="vision__para">I’m interested in tools that start with the realities of a learner’s day: a phone shared with family, a connection that comes and goes, a teacher balancing many needs, a difficult idea that needs a clearer explanation.</p>
-            <p class="vision__para">Technology in education should feel practical before it feels impressive. It should help a teacher make a concept visible, help a student keep track of progress, or give a class another way into a question. The best tool is not the most complicated one—it is the one that fits the people using it.</p>
-            <p class="vision__para">As I learn to teach biology and chemistry, I want to keep building with that in mind: listen first, make something small, learn from the people using it, and improve it together.</p>
+            <p>I’m interested in tools that start with the realities of a learner’s day: a phone shared with family, a connection that comes and goes, a teacher balancing many needs, a difficult idea that needs a clearer explanation.</p>
+            <p>Technology in education should feel practical before it feels impressive. It should help a teacher make a concept visible, help a student keep track of progress, or give a class another way into a question. The best tool is not the most complicated one—it is the one that fits the people using it.</p>
+            <p>As I learn to teach biology and chemistry, I want to keep building with that in mind: listen first, make something small, learn from the people using it, and improve it together.</p>
           </div>
         </div>
       </section>
@@ -84,45 +93,46 @@ const topics = ["All topics", ...[...new Set(notes.map((n) => n.data.topic))].so
 </script>
 
 <style>
-  .teaching__head { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
-  @media (min-width: 769px) { .teaching__head { flex-direction: row; justify-content: space-between; align-items: flex-end; width: 100%; } }
-  .teaching__eyebrow { margin: 0; }
-  .teaching__title { font-size: 40px; line-height: 1.05; margin: 4px 0 8px 0; }
-  @media (max-width: 768px) { .teaching__title { font-size: 30px; } }
-  .teaching__sub { color: var(--text); font-size: var(--text-lg); line-height: var(--leading-body); margin: 0; max-width: 560px; }
-  .teaching__updated { font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--primary); margin: 0; text-align: right; }
-  .teaching__tabs { display: flex; gap: 8px; margin-top: 26px; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
-  .teaching__tab { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding: 8px 14px; border-radius: 9999px; border: 1px solid transparent; }
+  .teaching__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+  .teaching__eyebrow, .notes__eyebrow, .journal__eyebrow, .vision__eyebrow { margin-bottom: 10px; }
+  .teaching__title { max-width: 820px; margin-bottom: 10px; font-size: var(--page-title); letter-spacing: -0.035em; }
+  .teaching__sub, .notes__sub, .journal__sub { max-width: 650px; font-size: var(--text-lg); }
+  .teaching__updated { flex: 0 0 auto; margin-bottom: 4px; }
+  .teaching__tabs { display: inline-flex; flex-wrap: wrap; gap: 2px; margin: 38px 0 42px; padding: 5px; border: 1px solid var(--border); border-radius: var(--radius-pill); background: var(--surface); }
+  .teaching__tab { padding: 8px 13px; border-radius: var(--radius-pill); color: var(--text); font-size: 12px; font-weight: 700; }
   .teaching__tab:hover { color: var(--primary); background: var(--sage); }
-  .notes__header { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; margin-bottom: 22px; }
-  @media (min-width: 769px) { .notes__header { flex-direction: row; justify-content: space-between; align-items: flex-end; width: 100%; } }
-  .notes__eyebrow { margin: 0; }
-  .notes__title { font-size: var(--h2-desktop); line-height: 1.05; margin: 0 0 8px 0; }
-  @media (max-width: 768px) { .notes__title { font-size: var(--h2-mobile); } }
-  .notes__sub { color: var(--text); font-size: var(--text-lg); line-height: var(--leading-body); margin: 0; max-width: 520px; }
-  .notes__controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .subject-pills { display: flex; gap: 8px; flex-wrap: wrap; }
-  .subject-pill { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 6px 14px; border-radius: 9999px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; }
+  .notes__title, .journal__title, .vision__title { margin-bottom: 8px; font-size: var(--h2-desktop); }
+  .notes__controls { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: 24px 0 18px; }
+  .subject-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .subject-pill { padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius-pill); color: var(--text); background: var(--surface); font-size: 12px; font-weight: 700; }
   .subject-pill:hover { border-color: var(--primary); }
-  .subject-pill.active { background: var(--primary); color: #ffffff; border-color: var(--primary); }
-  .topic-label { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
-  .topic-select { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 9999px; padding: 6px 12px; cursor: pointer; appearance: none; }
-  .notes__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-  @media (max-width: 900px) { .notes__grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 640px) { .notes__grid { grid-template-columns: 1fr; } }
-  .journal__eyebrow { margin: 0 0 10px 0; }
-  .journal__title { font-size: var(--h2-desktop); line-height: 1.05; margin: 0 0 8px 0; }
-  @media (max-width: 768px) { .journal__title { font-size: var(--h2-mobile); } }
-  .journal__sub { color: var(--text); font-size: var(--text-lg); line-height: var(--leading-body); margin: 0 0 22px 0; max-width: 520px; }
-  .journal__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-  @media (max-width: 900px) { .journal__grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 640px) { .journal__grid { grid-template-columns: 1fr; } }
-  .teaching__vision { padding-top: 8px; }
-  .vision__panel { border-radius: var(--radius-panel); border: 1px solid var(--border); background: var(--sage); padding: 40px; display: grid; grid-template-columns: 120px 1fr; gap: 32px; align-items: start; }
-  @media (max-width: 768px) { .vision__panel { grid-template-columns: 1fr; gap: 20px; padding: 28px 20px; } }
-  .vision__icon { width: 64px; height: 64px; border-radius: 16px; background: #ffffff; display: grid; place-items: center; font-family: var(--font-mono); font-weight: 700; font-size: 28px; color: var(--accent); line-height: 1; flex-shrink: 0; }
-  .vision__eyebrow { margin: 0 0 10px 0; }
-  .vision__title { font-size: var(--h2-desktop); line-height: 1.05; margin: 0 0 16px 0; }
-  @media (max-width: 768px) { .vision__title { font-size: var(--h2-mobile); } }
-  .vision__para { font-size: var(--text-lg); line-height: var(--leading-body); color: var(--text); margin: 0 0 16px 0; max-width: 520px; }
+  .subject-pill.active { border-color: var(--primary); color: var(--button-primary-text); background: var(--primary); }
+  .topic-filter { display: flex; align-items: center; gap: 10px; }
+  .topic-filter label { color: var(--text); font-size: 13px; }
+  .topic-filter select { min-width: 150px; padding: 8px 30px 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-pill); color: var(--text); background: var(--surface); font-size: 12px; }
+  .notes__grid, .journal__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .notes__empty { margin-top: 14px; color: var(--muted); font-size: 14px; }
+  .notes__empty[hidden] { display: none; }
+  .journal__sub { margin-bottom: 20px; }
+  .vision__title { margin-bottom: 20px; }
+  .vision__panel { display: grid; grid-template-columns: 72px 1fr; gap: 28px; padding: 32px; border: 1px solid var(--border); border-radius: var(--radius-panel); background: var(--sage); }
+  .vision__icon { display: grid; width: 56px; height: 56px; place-items: center; border-radius: 15px; color: var(--primary); background: var(--surface); font-size: 24px; }
+  .vision__text { max-width: 820px; }
+  .vision__text p + p { margin-top: 12px; }
+  .teaching .section-line { margin: 52px 0; }
+  @media (max-width: 960px) { .notes__grid, .journal__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 760px) {
+    .teaching__head { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .teaching__title { font-size: var(--page-title-mobile); }
+    .teaching__sub, .notes__sub, .journal__sub { font-size: 16px; }
+    .teaching__tabs { display: flex; width: 100%; margin: 28px 0 34px; }
+    .teaching__tab { flex: 1; padding-inline: 8px; text-align: center; font-size: 11px; }
+    .notes__controls { align-items: flex-start; flex-direction: column; }
+    .topic-filter { width: 100%; justify-content: space-between; }
+    .topic-filter select { flex: 1; max-width: 200px; }
+    .notes__title, .journal__title, .vision__title { font-size: var(--h2-mobile); }
+    .vision__panel { grid-template-columns: 1fr; gap: 18px; padding: 24px 20px; }
+    .teaching .section-line { margin: 40px 0; }
+  }
+  @media (max-width: 560px) { .notes__grid, .journal__grid { grid-template-columns: 1fr; } }
 </style>
